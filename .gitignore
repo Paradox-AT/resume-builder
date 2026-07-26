@@ -41,5 +41,9 @@ yarn-error.log*
 next-env.d.ts
 
 # resume data
-app/data/resume-data.ts
+data/*.ts
+!data/index.ts
 
+# personal assets
+/public/Me.jpg
+/public/me.jpg

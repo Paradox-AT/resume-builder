@@ -1,7 +1,20 @@
-import { resumeData } from "@/app/data/resume-data";
+"use client";
 
-export default function UxRichLayout() {
-  const { personalInfo, summary, contact, workHistory, education, skills, languages } = resumeData;
+import { useState } from "react";
+import "@/styles/ux.css";
+import type { ResumeData } from "@/types";
+import { getInitials } from "@/lib";
+
+interface UxRichLayoutProps {
+  data: ResumeData;
+}
+
+export default function UxRichLayout({ data }: UxRichLayoutProps) {
+  const { personalInfo, summary, contact, workHistory, education, skills, languages } = data;
+  const initials = personalInfo.avatarInitials || getInitials(personalInfo.name);
+  const [imgError, setImgError] = useState(false);
+
+  const hasPhoto = Boolean(personalInfo.profilePhotoUrl) && !imgError;
 
   return (
     <main id="main-content" className="page ux-layout mx-auto">
@@ -21,7 +34,7 @@ export default function UxRichLayout() {
         {/* HEADER */}
         <header className="resume-header">
           <div className="avatar" aria-hidden="true">
-            <span className="avatar-text">{personalInfo.avatarInitials}</span>
+            <span className="avatar-text">{initials}</span>
           </div>
           <div>
             <h1>{personalInfo.name}</h1>
@@ -114,6 +127,23 @@ export default function UxRichLayout() {
 
       {/* ═══════════ RIGHT COLUMN ═══════════ */}
       <aside className="col-right" aria-label="Contact and skills information">
+        {/* PROFILE PHOTO */}
+        <div className="profile-photo-container">
+          <div className="profile-photo-placeholder" aria-label="Profile photo" role="img">
+            <svg viewBox="0 0 24 24" className="profile-photo-icon" aria-hidden="true">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
+            {hasPhoto && (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={personalInfo.profilePhotoUrl}
+                className="profile-photo-img"
+                onError={() => setImgError(true)}
+              />
+            )}
+          </div>
+        </div>
+
         {/* CONTACT */}
         <section className="r-section" aria-labelledby="contact-heading">
           <div className="r-sec-head">

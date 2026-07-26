@@ -1,0 +1,496 @@
+/* ═══════════════════════════════════════════════════════════════════
+   UX-RICH LAYOUT STYLES
+   Scoped under .page — import into UxRichLayout.tsx
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── THEME DESIGN TOKENS ── */
+.page {
+  --text-primary: #1a1a1a;
+  --text-secondary: #444444;
+  --text-muted: #888888;
+  --text-bullet-bullet: #555555;
+  --bg-left: #ffffff;
+  --bg-right: var(--sidebar-bg, #f4f4f5);
+  --shadow: 0 4px 24px rgba(0, 0, 0, .22);
+
+  background: linear-gradient(to right, var(--bg-left) calc(100% - 220px), var(--bg-right) calc(100% - 220px));
+  color: var(--text-primary);
+  width: 794px;
+  max-width: 100%;
+  min-height: 1123px;
+  display: flex;
+  box-shadow: var(--shadow);
+}
+
+/* Dark Mode Tokens */
+.dark .page {
+  --text-primary: #f4f4f5;
+  --text-secondary: #d4d4d8;
+  --text-muted: #a1a1aa;
+  --text-bullet-bullet: #a1a1aa;
+  --bg-left: #18181b;
+  --bg-right: #121215;
+  --shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* White Sheet override in Dark Mode */
+.force-light .page {
+  --text-primary: #1a1a1a !important;
+  --text-secondary: #444444 !important;
+  --text-muted: #888888 !important;
+  --text-bullet-bullet: #555555 !important;
+  --bg-left: #ffffff !important;
+  --bg-right: var(--sidebar-bg, #f4f4f5) !important;
+  --shadow: 0 4px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ── LEFT COLUMN ── */
+.col-left {
+  flex: 1;
+  padding: 26px 24px 26px 30px;
+}
+
+/* ── RIGHT COLUMN ── */
+.col-right {
+  width: 220px;
+  min-width: 210px;
+  padding: 26px 30px;
+  background: transparent;
+}
+
+/* ── HEADER ── */
+.page .resume-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.avatar {
+  width: 110px;
+  height: 110px;
+  min-width: 110px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  position: relative;
+  user-select: none;
+}
+
+.use-gradient .avatar {
+  background: var(--accent-gradient, var(--accent-color));
+}
+
+.avatar-text {
+  color: #fff;
+  font-size: 45px;
+  font-style: italic;
+  font-weight: 300;
+  letter-spacing: 1px;
+  display: block;
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  line-height: 1;
+}
+
+.page .resume-header h1 {
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--accent-color);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+.page .resume-header .role {
+  font-size: 13.5px;
+  color: var(--accent-color);
+  opacity: 0.75;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ── SECTION HEADER ── */
+.section {
+  margin-bottom: 6px;
+}
+
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-left: 30px;
+  margin-bottom: 5px;
+}
+
+.ico {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.use-gradient .ico {
+  background: var(--accent-gradient, var(--accent-color));
+}
+
+.ico svg {
+  width: 17px;
+  height: 17px;
+  fill: #fff;
+  display: block;
+}
+
+.sec-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+/* ── SUMMARY ── */
+.summary-text {
+  padding-left: 75px;
+  font-size: 12.5px;
+  line-height: 1.68;
+  color: var(--text-secondary);
+}
+
+/* ══════════════════════════════════════
+   TIMELINE (WORK HISTORY & EDUCATION)
+═══════════════════════════════════════ */
+.work-list {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Continuous vertical timeline line spanning the entire work section */
+.work-list::before {
+  content: '';
+  position: absolute;
+  left: 90.25px;
+  top: 7.5px;
+  bottom: 0;
+  width: 1.5px;
+  background: var(--accent-color);
+  opacity: 0.25;
+  z-index: 0;
+}
+
+/* Shared structural classes for Work History & Education items */
+.work-item,
+.edu-item {
+  display: flex;
+  gap: 0;
+  position: relative;
+  align-items: flex-start;
+}
+
+.work-item {
+  margin-bottom: 8px;
+}
+
+.work-item:last-child {
+  margin-bottom: 0;
+}
+
+.wi-date,
+.edu-date {
+  width: 82px;
+  min-width: 82px;
+  padding-right: 10px;
+  text-align: right;
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  padding-top: 1px;
+}
+
+.wi-track,
+.edu-track {
+  width: 18px;
+  min-width: 18px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  align-self: stretch;
+  padding-top: 1px;
+}
+
+.wi-dot,
+.edu-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  margin-top: 2.5px;
+}
+
+.wi-body,
+.edu-body {
+  flex: 1;
+  padding-left: 10px;
+}
+
+/* Mask/cover the timeline line below the last work item's dot so it terminates cleanly at the last dot */
+.work-item:last-child .wi-track::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12.5px;
+  bottom: -20px;
+  background: var(--bg-left);
+  z-index: 1;
+}
+
+/* Details classes */
+.wi-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--accent-color);
+  line-height: 1.3;
+}
+
+.wi-company {
+  font-size: 11.5px;
+  color: var(--accent-color);
+  opacity: 0.75;
+  font-weight: 500;
+  margin: 2px 0 4px;
+}
+
+.wi-bullets {
+  list-style: none;
+}
+
+/* Individual bullet points (li) never break across page boundaries */
+.wi-bullets li {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.58;
+  padding-left: 11px;
+  position: relative;
+  margin-bottom: 2px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.wi-bullets li:last-child {
+  margin-bottom: 0;
+}
+
+.wi-bullets li::before {
+  content: '•';
+  position: absolute;
+  left: 1px;
+  color: var(--text-bullet-bullet);
+  font-size: 11px;
+  line-height: 1.58;
+}
+
+.edu-degree {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-color);
+  line-height: 1.35;
+}
+
+.edu-school {
+  font-size: 11.5px;
+  color: var(--accent-color);
+  opacity: 0.75;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ══════════════════════════════════════
+   RIGHT COLUMN
+═══════════════════════════════════════ */
+.profile-photo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.profile-photo-placeholder {
+  /* width: 108px; */
+  width: 150px;
+  /* height: 108px; */
+  height: 150px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+}
+
+.use-gradient .profile-photo-placeholder {
+  background: var(--accent-gradient, var(--accent-color));
+}
+
+.profile-photo-icon {
+  width: 70px;
+  height: 70px;
+  fill: #ffffff;
+  opacity: 0.9;
+}
+
+.profile-photo-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.r-section {
+  margin-bottom: 16px;
+}
+
+.r-sec-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.r-sec-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.c-item {
+  margin-bottom: 7px;
+}
+
+.c-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--accent-color);
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1px;
+}
+
+.c-val {
+  font-size: 10.5px;
+  color: var(--text-primary);
+  line-height: 1.45;
+  word-break: break-all;
+}
+
+.c-val a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.c-val a:hover {
+  text-decoration: underline;
+}
+
+/* ── SKILLS / LANGUAGES ── */
+.sk-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 7px;
+}
+
+.sk-name {
+  font-size: 11px;
+  color: var(--text-primary);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.sk-dots {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.dot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  min-height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot.on {
+  background: var(--accent-color);
+}
+
+.dot.off {
+  background: var(--accent-color);
+  opacity: 0.22;
+}
+
+.print-sidebar-bg {
+  display: none;
+}
+
+/* ── PRINT RULES & PAGE BREAK PREVENTION (Always last to override all screen styles) ── */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  .print-sidebar-bg {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 220px !important;
+    background: var(--bg-right) !important;
+    z-index: 0 !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  .page,
+  :root .page {
+    width: 100% !important;
+    min-height: auto !important;
+    box-shadow: none !important;
+    background: linear-gradient(to right, var(--bg-left) calc(100% - 220px), var(--bg-right) calc(100% - 220px)) !important;
+    color: var(--text-primary) !important;
+    position: relative !important;
+    z-index: 1 !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  .col-right {
+    background: transparent !important;
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  /* Prevent bullet points ONLY from breaking across pages */
+  .wi-bullets li {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}

@@ -1,0 +1,84 @@
+/* ═══════════════════════════════════════════════════════════════════
+   ATS LAYOUT STYLES
+   Scoped under .ats-layout — import into AtsLayout.tsx
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── THEME DESIGN TOKENS ── */
+.ats-layout {
+  --bg-color: #ffffff;
+  --text-primary: #18181b;
+  --text-secondary: #27272a;
+  --text-muted: #71717a;
+  --border-color: #e4e4e7;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.22);
+
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+}
+
+/* Dark Mode Tokens */
+.dark .ats-layout {
+  --bg-color: #18181b;
+  --text-primary: #f4f4f5;
+  --text-secondary: #d4d4d8;
+  --text-muted: #a1a1aa;
+  --border-color: #27272a;
+  --shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* White Sheet override in Dark Mode */
+.force-light .ats-layout {
+  --bg-color: #ffffff !important;
+  --text-primary: #18181b !important;
+  --text-secondary: #27272a !important;
+  --text-muted: #71717a !important;
+  --border-color: #e4e4e7 !important;
+  --shadow: 0 4px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ── ELEMENT ACCENT COLORS & TYPOGRAPHY ── */
+.ats-layout h1 {
+  color: var(--accent-color);
+}
+
+.ats-layout .ats-role {
+  color: var(--accent-color);
+  opacity: 0.8;
+}
+
+.ats-layout h2 {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.ats-layout h3 {
+  color: var(--accent-color);
+}
+
+/* ── PAGE BREAK PREVENTION ── */
+.ats-layout li,
+.ats-layout article {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* ── PRINT RULES ── */
+@media print {
+  .ats-layout li,
+  .ats-layout article {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .ats-layout,
+  :root .ats-layout {
+    width: 100% !important;
+    min-height: auto !important;
+    box-shadow: none !important;
+    background-color: var(--bg-color) !important;
+    color: var(--text-primary) !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+}

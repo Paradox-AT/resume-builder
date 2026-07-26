@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lato } from "next/font/google";
-import "./globals.css";
+import "@/styles/globals.css";
+import { getResumeData } from "@/data/resumes";
 
 const lato = Lato({
   variable: "--font-lato",
@@ -9,9 +10,11 @@ const lato = Lato({
   style: ["normal", "italic"],
 });
 
+const defaultResume = getResumeData();
+
 export const metadata: Metadata = {
-  title: "Aayush Thakur – Sr. Blockchain Engineer",
-  description: "Enterprise Blockchain Architect and Engineering Leader professional resume.",
+  title: `${defaultResume.personalInfo.name} – ${defaultResume.personalInfo.role}`,
+  description: defaultResume.summary,
 };
 
 export default function RootLayout({

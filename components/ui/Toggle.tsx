@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ThemeMode, ResumeType, ViewType, ResumeProfile } from "@/types";
+import { UX_THEMES, ATS_THEMES, type ResumeThemeDefinition } from "@/types";
+import ThemeThumbnail from "./ThemeThumbnail";
 import { getAccentGradientEnd, applyThemeVars, COLOR_PRESET_GROUPS, PRESET_COLORS, DEFAULT_ACCENT_COLOR, type PresetColorGroup, type PresetColor } from "@/lib";
 import { RESUME_REGISTRY } from "@/data/resumes";
 import { useSystemDarkMode } from "@/hooks/useSystemDarkMode";
@@ -71,7 +73,8 @@ function ProfileBadgeIcon({ role, className = "h-3.5 w-3.5" }: { role?: string; 
 }
 
 interface ToggleProps {
-  activeView: ViewType;
+  activeView?: ViewType;
+  activeTheme?: string;
   activeType?: ResumeType;
   activeColor?: string;
   useGradient?: boolean;
@@ -91,6 +94,7 @@ interface ToggleProps {
 
 export default function Toggle({
   activeView = 'ux',
+  activeTheme = 'ux-modern',
   activeType = RESUME_REGISTRY[0].id,
   activeColor = DEFAULT_ACCENT_COLOR,
   useGradient = false,
@@ -166,14 +170,18 @@ export default function Toggle({
         onResetPreset(typeId);
       }
     }
-    router.replace(`/?view=${activeView}&type=${typeId}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
+    router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${typeId}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
+  };
+
+  const handleSelectTheme = (themeId: string) => {
+    router.replace(`/?view=${activeView}&theme=${themeId}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
   };
 
   const handleApplyColor = (val: string) => {
     const colorStr = val.trim();
     if (!colorStr) return;
     applyThemeVars(colorStr);
-    router.replace(`/?view=${activeView}&type=${activeType}&color=${encodeURIComponent(colorStr)}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
+    router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodeURIComponent(colorStr)}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
   };
 
   const handleInputChange = (val: string) => {
@@ -181,20 +189,20 @@ export default function Toggle({
     if (val.trim()) {
       const colorStr = val.trim();
       applyThemeVars(colorStr);
-      router.replace(`/?view=${activeView}&type=${activeType}&color=${encodeURIComponent(colorStr)}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
+      router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodeURIComponent(colorStr)}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
     }
   };
 
   const handleToggleGradient = (next: boolean) => {
-    router.replace(`/?view=${activeView}&type=${activeType}&color=${encodedColor}&gradient=${next}&mode=${themeMode}&card=${cardParam}`);
+    router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodedColor}&gradient=${next}&mode=${themeMode}&card=${cardParam}`);
   };
 
   const handleToggleWhiteCard = (next: boolean) => {
-    router.replace(`/?view=${activeView}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${next ? "white" : "dark"}`);
+    router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${next ? "white" : "dark"}`);
   };
 
   const handleSetThemeMode = (nextMode: ThemeMode) => {
-    router.replace(`/?view=${activeView}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${nextMode}&card=${cardParam}`);
+    router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${nextMode}&card=${cardParam}`);
   };
 
   const dm = effectiveDarkMode;
@@ -351,7 +359,7 @@ export default function Toggle({
                 style={activeBgStyle}
               />
               <Link
-                href={`/?view=ux&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`}
+                href={`/?view=ux&theme=ux-modern&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`}
                 replace
                 className={`relative z-10 flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold tracking-wide transition-colors duration-200 ${activeView === "ux" ? "text-white" : dm ? "text-zinc-400 hover:text-white" : "text-zinc-600 hover:text-zinc-900"}`}
               >
@@ -359,7 +367,7 @@ export default function Toggle({
                 UX-Rich
               </Link>
               <Link
-                href={`/?view=ats&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`}
+                href={`/?view=ats&theme=ats-standard&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`}
                 replace
                 className={`relative z-10 flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold tracking-wide transition-colors duration-200 ${activeView === "ats" ? "text-white" : dm ? "text-zinc-400 hover:text-white" : "text-zinc-600 hover:text-zinc-900"}`}
               >
@@ -400,7 +408,6 @@ export default function Toggle({
           >
             <div className="overflow-hidden">
               <div className={`border-t px-4 pb-4 pt-3 transition-opacity duration-300 ${isExpanded ? "opacity-100" : "opacity-0"} ${dm ? "border-zinc-800" : "border-zinc-100"}`}>
-
 
                 {/* Appearance Mode Segment */}
                 <div
@@ -467,6 +474,52 @@ export default function Toggle({
                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition duration-200 ${whiteCard ? "translate-x-4" : "translate-x-0"}`} />
                   </button>
                 </div>
+
+                {/* Layout Theme Thumbnail Picker */}
+                {activeView === "ats" ? (
+                  <div
+                    className="mb-3.5 transition-all duration-300"
+                    style={{ transitionDelay: isExpanded ? "30ms" : "0ms", opacity: isExpanded ? 1 : 0, transform: isExpanded ? "translateY(0)" : "translateY(-4px)" }}
+                  >
+                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2 select-none">
+                      <span>ATS Theme Layouts ({ATS_THEMES.length} Templates)</span>
+                      <span className="text-zinc-500 font-normal">Click Thumbnail</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2.5 max-h-56 overflow-y-auto p-1.5 custom-scrollbar">
+                      {ATS_THEMES.map((t) => {
+                        const isSelected = activeTheme === t.id;
+                        return (
+                          <button
+                            key={t.id}
+                            onClick={() => handleSelectTheme(t.id)}
+                            title={`${t.label}: ${t.description}`}
+                            className="group flex flex-col items-center gap-1 cursor-pointer transition-transform active:scale-95"
+                          >
+                            <ThemeThumbnail
+                              themeId={t.id}
+                              isSelected={isSelected}
+                              accentColor={activeColor}
+                              useGradient={useGradient}
+                              whiteCard={whiteCard}
+                              dm={dm}
+                            />
+                            <span className={`text-[9px] font-bold tracking-tight truncate w-full text-center ${isSelected ? "text-zinc-900 dark:text-white" : "text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300"}`}>
+                              {t.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="mb-3.5 flex items-center justify-between transition-all duration-300"
+                    style={{ transitionDelay: isExpanded ? "30ms" : "0ms", opacity: isExpanded ? 1 : 0, transform: isExpanded ? "translateY(0)" : "translateY(-4px)" }}
+                  >
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 select-none">UX Theme Layout</span>
+                    <span className="text-xs font-semibold text-zinc-500">Modern Sidebar</span>
+                  </div>
+                )}
 
                 {/* Accent Color Header */}
                 <div

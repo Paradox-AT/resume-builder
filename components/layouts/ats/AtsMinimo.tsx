@@ -1,0 +1,110 @@
+import "@/styles/ats.css";
+import type { ResumeData } from "@/types";
+
+interface AtsMinimoProps {
+  data: ResumeData;
+}
+
+export default function AtsMinimo({ data }: AtsMinimoProps) {
+  const { personalInfo, summary, contact, workHistory, education, skills, languages } = data;
+
+  return (
+    <main id="main-content" className="ats-layout mx-auto flex flex-col w-[794px] max-w-full min-h-[1123px] bg-[var(--bg-color)] px-10 py-10 text-[var(--text-primary)] antialiased shadow-[var(--shadow)] print:w-full print:min-h-0 print:shadow-none print:px-6 print:py-4 theme-ats-minimo">
+      <header className="border-b border-zinc-200 pb-5 text-left">
+        <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900">{personalInfo.name}</h1>
+        <p className="text-base font-semibold text-zinc-600 mt-0.5">{personalInfo.role}</p>
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500 font-medium">
+          {contact.phone && <span>{contact.phone}</span>}
+          {contact.email && (
+            <>
+              <span>•</span>
+              <a href={`mailto:${contact.email}`} className="hover:underline">{contact.email}</a>
+            </>
+          )}
+          {contact.linkedin && (
+            <>
+              <span>•</span>
+              <a href={`https://${contact.linkedin}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{contact.linkedin}</a>
+            </>
+          )}
+          {contact.github && (
+            <>
+              <span>•</span>
+              <a href={`https://${contact.github}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{contact.github}</a>
+            </>
+          )}
+          {contact.address && (
+            <>
+              <span>•</span>
+              <span>{contact.address}</span>
+            </>
+          )}
+        </div>
+      </header>
+
+      {summary && (
+        <section className="mt-5">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">Summary</h2>
+          <p className="text-xs leading-relaxed text-zinc-700">{summary}</p>
+        </section>
+      )}
+
+      {workHistory && workHistory.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-xs font-bold uppercase tracking-wider border-b border-zinc-200 pb-1 mb-3 text-zinc-400">Experience</h2>
+          <div className="space-y-4">
+            {workHistory.map((job) => (
+              <article key={job.id} className="break-inside-avoid">
+                <div className="flex justify-between items-baseline">
+                  <h3 className="text-sm font-bold text-zinc-900">{job.title} – <span className="font-semibold text-zinc-600">{job.company}</span></h3>
+                  <span className="text-xs font-medium text-zinc-500">{job.date.start} – {job.date.end || "Present"}</span>
+                </div>
+                {job.bullets && job.bullets.length > 0 && (
+                  <ul className="mt-1 list-disc pl-4 text-xs leading-relaxed text-zinc-700 space-y-0.5">
+                    {job.bullets.map((b, i) => (
+                      <li key={i}>{b}</li>
+                    ))}
+                  </ul>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {education && education.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-xs font-bold uppercase tracking-wider border-b border-zinc-200 pb-1 mb-3 text-zinc-400">Education</h2>
+          <div className="space-y-2 text-xs">
+            {education.map((edu) => (
+              <div key={edu.id} className="flex justify-between items-baseline break-inside-avoid">
+                <div>
+                  <span className="font-bold text-zinc-900">{edu.degree}</span> – <span className="text-zinc-600">{edu.school}</span>
+                </div>
+                <span className="text-zinc-500">{edu.date.start} – {edu.date.end || "Present"}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {skills && skills.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-xs font-bold uppercase tracking-wider border-b border-zinc-200 pb-1 mb-2 text-zinc-400">Skills</h2>
+          <p className="text-xs text-zinc-700 leading-relaxed">
+            {skills.map((s) => s.name).join(" • ")}
+          </p>
+        </section>
+      )}
+
+      {languages && languages.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-xs font-bold uppercase tracking-wider border-b border-zinc-200 pb-1 mb-2 text-zinc-400">Languages</h2>
+          <p className="text-xs text-zinc-700 leading-relaxed">
+            {languages.map((l) => `${l.name} (${l.level}/5)`).join(" • ")}
+          </p>
+        </section>
+      )}
+    </main>
+  );
+}

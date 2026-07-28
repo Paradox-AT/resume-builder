@@ -5,7 +5,7 @@ import { getSidebarBg, getAccentGradientEnd, DEFAULT_ACCENT_COLOR } from "@/lib"
 import type { ThemeMode, ViewType, ResumeType } from "@/types";
 
 interface PageProps {
-  searchParams: Promise<{ view?: string; type?: string; color?: string; gradient?: string; mode?: string; card?: string }>;
+  searchParams: Promise<{ view?: string; theme?: string; type?: string; color?: string; gradient?: string; mode?: string; card?: string }>;
 }
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
@@ -18,8 +18,9 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 }
 
 export default async function Home({ searchParams }: PageProps) {
-  const { view, type, color, gradient, mode, card } = await searchParams;
+  const { view, theme, type, color, gradient, mode, card } = await searchParams;
   const activeView: ViewType = view === "ats" ? "ats" : "ux";
+  const activeTheme = theme || (activeView === "ats" ? "ats-standard" : "ux-modern");
   const activeType: ResumeType = type ? (type as ResumeType) : (RESUME_REGISTRY[0].id as ResumeType);
   const isGradient = gradient !== "false";
   const isWhiteCard = card !== "dark";
@@ -65,6 +66,7 @@ export default async function Home({ searchParams }: PageProps) {
       <ResumeViewWrapper
         initialData={currentData}
         activeView={activeView}
+        activeTheme={activeTheme}
         activeType={activeType}
         activeColor={activeColor}
         isGradient={isGradient}

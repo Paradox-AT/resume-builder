@@ -13,6 +13,7 @@ import ResumeWizardDrawer from "@/components/wizard/ResumeWizardDrawer";
 interface ResumeViewWrapperProps {
   initialData: ResumeData;
   activeView: ViewType;
+  activeTheme?: string;
   activeType: ResumeType;
   activeColor: string;
   isGradient: boolean;
@@ -23,6 +24,7 @@ interface ResumeViewWrapperProps {
 export default function ResumeViewWrapper({
   initialData,
   activeView,
+  activeTheme = "ux-modern",
   activeType,
   activeColor,
   isGradient,
@@ -126,6 +128,7 @@ export default function ResumeViewWrapper({
     <>
       <Toggle
         activeView={activeView}
+        activeTheme={activeTheme}
         activeType={currentActiveType}
         activeColor={activeColor}
         useGradient={isGradient}
@@ -145,9 +148,9 @@ export default function ResumeViewWrapper({
 
       <div className={`w-full flex-1 flex flex-col justify-start items-center print:block ${isWhiteCard ? "force-light" : ""}`}>
         {activeView === "ux" ? (
-          <UxRichLayout data={store.data} />
+          <UxRichLayout data={store.data} themeId={activeTheme} />
         ) : (
-          <AtsLayout data={store.data} />
+          <AtsLayout data={store.data} themeId={activeTheme} />
         )}
       </div>
 

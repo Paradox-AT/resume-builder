@@ -10,7 +10,7 @@ export const blockchainResume: ResumeData = {
   contact: {
     phone: "+91 99 777 46005",
     email: "thakur.aayush@hotmail.com",
-    linkedin: "linkedin.com/in/thakur-aayush/",
+    linkedin: "linkedin.com/in/thakur-aayush",
     github: "github.com/Paradox-AT",
   },
   workHistory: [

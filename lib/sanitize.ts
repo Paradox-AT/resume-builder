@@ -1,4 +1,4 @@
-import type { ResumeData, WorkExperience, Education, Skill } from "@/types";
+import type { ResumeData, WorkExperience, Education, Skill, SectionTitles } from "@/types";
 
 /**
  * Sanitizes any raw object/JSON data into a fully-conforming ResumeData object.
@@ -24,6 +24,18 @@ export function sanitizeResumeData(raw: unknown): ResumeData {
   };
 
   const summary = typeof data.summary === "string" ? data.summary : "";
+
+  const sectionTitlesRaw = (data.sectionTitles && typeof data.sectionTitles === "object"
+    ? data.sectionTitles
+    : {}) as Record<string, unknown>;
+
+  const sectionTitles: SectionTitles = {
+    summary: typeof sectionTitlesRaw.summary === "string" ? sectionTitlesRaw.summary : undefined,
+    workHistory: typeof sectionTitlesRaw.workHistory === "string" ? sectionTitlesRaw.workHistory : undefined,
+    education: typeof sectionTitlesRaw.education === "string" ? sectionTitlesRaw.education : undefined,
+    skills: typeof sectionTitlesRaw.skills === "string" ? sectionTitlesRaw.skills : undefined,
+    languages: typeof sectionTitlesRaw.languages === "string" ? sectionTitlesRaw.languages : undefined,
+  };
 
   const contactRaw = (data.contact && typeof data.contact === "object"
     ? data.contact
@@ -56,6 +68,7 @@ export function sanitizeResumeData(raw: unknown): ResumeData {
   return {
     personalInfo,
     summary,
+    sectionTitles,
     contact,
     workHistory,
     education,
@@ -137,6 +150,13 @@ export function createEmptyResumeData(): ResumeData {
       role: "Your Professional Role",
     },
     summary: "",
+    sectionTitles: {
+      summary: "Professional Summary",
+      workHistory: "Work Experience",
+      education: "Education",
+      skills: "Skills & Qualifications",
+      languages: "Languages",
+    },
     contact: {
       phone: "",
       email: "",

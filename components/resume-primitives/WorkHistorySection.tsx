@@ -4,12 +4,14 @@ import type { WorkExperience } from "@/types";
 
 interface WorkHistorySectionProps {
   workHistory: WorkExperience[];
+  title?: string;
   variant?: "ux-timeline" | "ux-cards" | "ux-compact" | "ats-clean" | "ats-academic";
   className?: string;
 }
 
 export default function WorkHistorySection({
   workHistory,
+  title = "Work Experience",
   variant = "ux-timeline",
   className = "",
 }: WorkHistorySectionProps) {
@@ -19,7 +21,7 @@ export default function WorkHistorySection({
     return (
       <section className={`mb-6 print:mb-4 ${className}`} aria-labelledby="work-heading">
         <h2 id="work-heading" className="text-xs font-bold uppercase tracking-wider border-b border-[var(--border-color)] pb-1 mb-3 text-[var(--text-primary)]">
-          Work Experience
+          {title}
         </h2>
         <div className="space-y-4">
           {workHistory.map((item) => (
@@ -56,7 +58,7 @@ export default function WorkHistorySection({
             <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 1.99 2H20c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z" />
           </svg>
         </div>
-        <h2 id="work-heading">Work Experience</h2>
+        <h2 id="work-heading">{title}</h2>
       </div>
 
       <div className="timeline">

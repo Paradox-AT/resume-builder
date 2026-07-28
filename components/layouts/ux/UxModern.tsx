@@ -51,7 +51,7 @@ export default function UxModern({ data }: UxModernProps) {
               </svg>
             </div>
             <h2 id="summary-heading" className="sec-title">
-              Professional Summary
+              {data.sectionTitles?.summary || "Professional Summary"}
             </h2>
           </div>
           <p className="summary-text">{summary}</p>
@@ -66,7 +66,7 @@ export default function UxModern({ data }: UxModernProps) {
               </svg>
             </div>
             <h2 id="work-heading" className="sec-title">
-              Work History
+              {data.sectionTitles?.workHistory || "Work History"}
             </h2>
           </div>
 
@@ -104,7 +104,7 @@ export default function UxModern({ data }: UxModernProps) {
               </svg>
             </div>
             <h2 id="education-heading" className="sec-title">
-              Education
+              {data.sectionTitles?.education || "Education"}
             </h2>
           </div>
 
@@ -194,7 +194,7 @@ export default function UxModern({ data }: UxModernProps) {
               </svg>
             </div>
             <h2 id="skills-heading" className="r-sec-title">
-              Skills
+              {data.sectionTitles?.skills || "Skills"}
             </h2>
           </div>
 
@@ -222,7 +222,7 @@ export default function UxModern({ data }: UxModernProps) {
               </svg>
             </div>
             <h2 id="languages-heading" className="r-sec-title">
-              Languages
+              {data.sectionTitles?.languages || "Languages"}
             </h2>
           </div>
 

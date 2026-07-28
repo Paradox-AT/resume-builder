@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import type { ThemeMode, ResumeType, ViewType, ResumeProfile } from "@/types";
 import { UX_THEMES, ATS_THEMES, type ResumeThemeDefinition } from "@/types";
 import ThemeThumbnail from "./ThemeThumbnail";
-import { getAccentGradientEnd, applyThemeVars, COLOR_PRESET_GROUPS, PRESET_COLORS, DEFAULT_ACCENT_COLOR, type PresetColorGroup, type PresetColor } from "@/lib";
+import { getAccentGradientEnd, applyThemeVars, COLOR_PRESET_GROUPS, PRESET_COLORS, DEFAULT_ACCENT_COLOR, APPEARANCE_MODES, type PresetColorGroup, type PresetColor } from "@/lib";
 import { RESUME_REGISTRY } from "@/data/resumes";
 import { useSystemDarkMode } from "@/hooks/useSystemDarkMode";
 import {
@@ -416,7 +416,8 @@ export default function Toggle({
                 >
                   <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2 select-none">Appearance</div>
                   <div className={`grid grid-cols-3 gap-1 rounded-xl p-1 ${dm ? "bg-zinc-800/90" : "bg-zinc-100/90"}`}>
-                    {(["light", "dark", "system"] as const).map((mode) => {
+                    {APPEARANCE_MODES.map((modeItem) => {
+                      const mode = modeItem.id;
                       const isActive = themeMode === mode;
                       return (
                         <button
@@ -436,7 +437,7 @@ export default function Toggle({
                           {mode === "light" && <IconSun className="h-3.5 w-3.5" />}
                           {mode === "dark" && <IconMoon className="h-3.5 w-3.5" />}
                           {mode === "system" && <IconMonitor className="h-3.5 w-3.5" />}
-                          <span className="capitalize">{mode}</span>
+                          <span className="capitalize">{modeItem.label}</span>
                         </button>
                       );
                     })}
@@ -459,20 +460,26 @@ export default function Toggle({
                   </button>
                 </div>
 
-                {/* White Sheet Toggle (Dark Background + White A4 Page) */}
+                {/* Page Paper Color Toggle (Light vs Dark Paper Sheet) */}
                 <div
                   className={`flex items-center justify-between mb-3 pb-3 border-b transition-all duration-300 ${dm ? "border-zinc-800" : "border-zinc-100"}`}
                   style={{ transitionDelay: isExpanded ? "175ms" : "0ms", opacity: isExpanded ? 1 : 0, transform: isExpanded ? "translateY(0)" : "translateY(-4px)" }}
                 >
-                  <span className="text-xs font-bold flex items-center gap-1.5"><IconFileText className="h-3.5 w-3.5 text-zinc-500" /> White Sheet Page</span>
-                  <button
-                    onClick={() => handleToggleWhiteCard(!whiteCard)}
-                    role="switch"
-                    aria-checked={whiteCard}
-                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${whiteCard ? "bg-zinc-700" : "bg-zinc-300"}`}
-                  >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition duration-200 ${whiteCard ? "translate-x-4" : "translate-x-0"}`} />
-                  </button>
+                  <span className="text-xs font-bold flex items-center gap-1.5"><IconFileText className="h-3.5 w-3.5 text-zinc-500" /> Page Paper Color</span>
+                  <div className={`flex items-center gap-1 rounded-lg p-0.5 ${dm ? "bg-zinc-800" : "bg-zinc-200"}`}>
+                    <button
+                      onClick={() => handleToggleWhiteCard(true)}
+                      className={`px-2.5 py-1 rounded text-[10px] font-bold transition-all cursor-pointer ${whiteCard ? (dm ? "bg-zinc-700 text-white shadow-xs" : "bg-white text-zinc-900 shadow-xs") : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+                    >
+                      Light
+                    </button>
+                    <button
+                      onClick={() => handleToggleWhiteCard(false)}
+                      className={`px-2.5 py-1 rounded text-[10px] font-bold transition-all cursor-pointer ${!whiteCard ? (dm ? "bg-zinc-700 text-white shadow-xs" : "bg-zinc-900 text-white shadow-xs") : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"}`}
+                    >
+                      Dark
+                    </button>
+                  </div>
                 </div>
 
                 {/* Layout Theme Thumbnail Picker */}
@@ -526,7 +533,7 @@ export default function Toggle({
                   className="mb-2.5 flex items-center justify-between transition-all duration-300"
                   style={{ transitionDelay: isExpanded ? "60ms" : "0ms", opacity: isExpanded ? 1 : 0, transform: isExpanded ? "translateY(0)" : "translateY(-6px)" }}
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 select-none">Accent Color Presets</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 select-none">Accent Colors ({PRESET_COLORS.length} Swatches)</span>
                   <span className="h-3.5 w-3.5 rounded-full border border-black/10 shadow-xs" style={activeBgStyle} />
                 </div>
 

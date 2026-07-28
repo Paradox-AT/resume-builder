@@ -5,6 +5,8 @@ import type { Skill } from "@/types";
 interface SkillsSectionProps {
   skills: Skill[];
   languages?: Skill[];
+  skillsTitle?: string;
+  languagesTitle?: string;
   variant?: "ux-sidebar" | "ux-progress" | "ux-chips" | "ats-clean";
   className?: string;
 }
@@ -12,6 +14,8 @@ interface SkillsSectionProps {
 export default function SkillsSection({
   skills,
   languages,
+  skillsTitle = "Skills",
+  languagesTitle = "Languages",
   variant = "ux-sidebar",
   className = "",
 }: SkillsSectionProps) {
@@ -19,7 +23,7 @@ export default function SkillsSection({
     return (
       <section className={`mb-6 print:mb-4 ${className}`} aria-labelledby="skills-heading">
         <h2 id="skills-heading" className="text-xs font-bold uppercase tracking-wider border-b border-[var(--border-color)] pb-1 mb-3 text-[var(--text-primary)]">
-          Skills & Qualifications
+          {skillsTitle}
         </h2>
         {skills && skills.length > 0 && (
           <div className="text-xs text-[var(--text-secondary)] leading-relaxed mb-2">
@@ -29,7 +33,7 @@ export default function SkillsSection({
         )}
         {languages && languages.length > 0 && (
           <div className="text-xs text-[var(--text-secondary)] leading-relaxed">
-            <span className="font-semibold text-[var(--text-primary)]">Languages: </span>
+            <span className="font-semibold text-[var(--text-primary)]">{languagesTitle}: </span>
             {languages.map((l) => `${l.name} (${l.level || 5}/5)`).join(" • ")}
           </div>
         )}
@@ -47,7 +51,7 @@ export default function SkillsSection({
                 <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
               </svg>
             </div>
-            <h2 id="skills-heading">Skills</h2>
+            <h2 id="skills-heading">{skillsTitle}</h2>
           </div>
           <div className="skills-grid">
             {skills.map((s) => (
@@ -68,7 +72,7 @@ export default function SkillsSection({
                 <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z" />
               </svg>
             </div>
-            <h2 id="lang-heading">Languages</h2>
+            <h2 id="lang-heading">{languagesTitle}</h2>
           </div>
           <div className="space-y-1.5 text-xs">
             {languages.map((l) => (

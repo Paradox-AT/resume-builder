@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { ResumeData, WorkExperience, Education, Skill } from "@/types";
+import type { ResumeData, WorkExperience, Education, Skill, SectionTitles } from "@/types";
 import { sanitizeResumeData, createEmptyResumeData } from "@/lib/sanitize";
 import { getResumeData } from "@/data/resumes";
 
@@ -124,6 +124,19 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
   const updateSummary = useCallback(
     (summary: string) => {
       updateData((prev) => ({ ...prev, summary }));
+    },
+    [updateData]
+  );
+
+  const updateSectionTitle = useCallback(
+    (field: keyof SectionTitles, value: string) => {
+      updateData((prev) => ({
+        ...prev,
+        sectionTitles: {
+          ...prev.sectionTitles,
+          [field]: value,
+        },
+      }));
     },
     [updateData]
   );
@@ -424,6 +437,7 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     redo,
     updatePersonalInfo,
     updateSummary,
+    updateSectionTitle,
     updateContact,
     addWorkExperience,
     removeWorkExperience,

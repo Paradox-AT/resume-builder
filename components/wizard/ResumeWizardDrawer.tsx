@@ -7,12 +7,15 @@ import StepSummary from "./steps/StepSummary";
 import StepWorkHistory from "./steps/StepWorkHistory";
 import StepEducation from "./steps/StepEducation";
 import StepSkills from "./steps/StepSkills";
+import StepSectionHeadings from "./steps/StepSectionHeadings";
+import type { SectionTitles } from "@/types";
 import {
   IconUser,
   IconFileText,
   IconBriefcase,
   IconGraduation,
   IconZap,
+  IconTag,
 } from "@/components/ui/icons";
 
 interface StepIconProps {
@@ -32,6 +35,8 @@ function StepIcon({ id, className = "h-3.5 w-3.5" }: StepIconProps) {
       return <IconGraduation className={className} />;
     case "skills":
       return <IconZap className={className} />;
+    case "headings":
+      return <IconTag className={className} />;
   }
 }
 
@@ -41,6 +46,7 @@ const WIZARD_STEPS: WizardStep[] = [
   { id: "work", label: "Work", icon: "", description: "Employment History" },
   { id: "education", label: "Education", icon: "", description: "Degrees & Schools" },
   { id: "skills", label: "Skills", icon: "", description: "Technical & Languages" },
+  { id: "headings", label: "Headings", icon: "", description: "Section Titles" },
 ];
 
 interface ResumeWizardDrawerProps {
@@ -70,6 +76,7 @@ interface ResumeWizardDrawerProps {
   onAddSkill: (category: "skills" | "languages") => void;
   onRemoveSkill: (category: "skills" | "languages", idx: number) => void;
   onUpdateSkill: (category: "skills" | "languages", idx: number, updated: Partial<Skill>) => void;
+  onUpdateSectionTitle?: (field: keyof SectionTitles, value: string) => void;
   onExportDownload: () => void;
   onImportFile: (file: File) => Promise<{ success: boolean; error?: string }>;
   onResetToPreset: (presetId?: string) => void;
@@ -103,6 +110,7 @@ export default function ResumeWizardDrawer({
   onAddSkill,
   onRemoveSkill,
   onUpdateSkill,
+  onUpdateSectionTitle,
   onExportDownload,
   onImportFile,
   onResetToPreset,
@@ -294,6 +302,13 @@ export default function ResumeWizardDrawer({
                 onAddSkill={onAddSkill}
                 onRemoveSkill={onRemoveSkill}
                 onUpdateSkill={onUpdateSkill}
+              />
+            )}
+
+            {activeStep === "headings" && (
+              <StepSectionHeadings
+                sectionTitles={data.sectionTitles}
+                onUpdateSectionTitle={onUpdateSectionTitle || (() => {})}
               />
             )}
           </div>

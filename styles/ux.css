@@ -33,7 +33,7 @@
   --shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
 }
 
-/* White Sheet override in Dark Mode */
+/* Page Paper Color Overrides */
 .force-light .page {
   --text-primary: #1a1a1a !important;
   --text-secondary: #444444 !important;
@@ -41,6 +41,16 @@
   --text-bullet-bullet: #555555 !important;
   --bg-left: #ffffff !important;
   --bg-right: var(--sidebar-bg, #f4f4f5) !important;
+  --shadow: 0 4px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+.force-dark .page {
+  --text-primary: #f4f4f5 !important;
+  --text-secondary: #d4d4d8 !important;
+  --text-muted: #a1a1aa !important;
+  --text-bullet-bullet: #a1a1aa !important;
+  --bg-left: #18181b !important;
+  --bg-right: #121215 !important;
   --shadow: 0 4px 32px rgba(0, 0, 0, 0.6) !important;
 }
 

@@ -1,6 +1,6 @@
 import type { ResumeData } from "./resume";
 
-export type StepId = "personal" | "summary" | "work" | "education" | "skills";
+export type StepId = "personal" | "summary" | "work" | "education" | "skills" | "headings";
 
 export interface WizardStep {
   id: StepId;

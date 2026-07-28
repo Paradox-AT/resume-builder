@@ -4,12 +4,14 @@ import type { Education } from "@/types";
 
 interface EducationSectionProps {
   education: Education[];
+  title?: string;
   variant?: "ux-sidebar" | "ux-cards" | "ats-clean";
   className?: string;
 }
 
 export default function EducationSection({
   education,
+  title = "Education",
   variant = "ux-sidebar",
   className = "",
 }: EducationSectionProps) {
@@ -19,7 +21,7 @@ export default function EducationSection({
     return (
       <section className={`mb-6 print:mb-4 ${className}`} aria-labelledby="edu-heading">
         <h2 id="edu-heading" className="text-xs font-bold uppercase tracking-wider border-b border-[var(--border-color)] pb-1 mb-3 text-[var(--text-primary)]">
-          Education
+          {title}
         </h2>
         <div className="space-y-3">
           {education.map((item) => (
@@ -49,7 +51,7 @@ export default function EducationSection({
             <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
           </svg>
         </div>
-        <h2 id="edu-heading">Education</h2>
+        <h2 id="edu-heading">{title}</h2>
       </div>
 
       <div className="space-y-4">

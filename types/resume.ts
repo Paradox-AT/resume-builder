@@ -31,6 +31,14 @@ export interface Skill {
   level: number; // 1 to 5 scale
 }
 
+export interface SectionTitles {
+  summary?: string;
+  workHistory?: string;
+  education?: string;
+  skills?: string;
+  languages?: string;
+}
+
 export interface ResumeData {
   personalInfo: {
     name: string;
@@ -39,6 +47,7 @@ export interface ResumeData {
     profilePhotoUrl?: string;
   };
   summary: string;
+  sectionTitles?: SectionTitles;
   contact: ContactInfo;
   workHistory: WorkExperience[];
   education: Education[];

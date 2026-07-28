@@ -10,6 +10,18 @@ export interface PresetColorGroup {
   colors: PresetColor[];
 }
 
+export interface AppearanceModeDefinition {
+  id: "light" | "dark" | "system";
+  label: string;
+  icon: string;
+}
+
+export const APPEARANCE_MODES: AppearanceModeDefinition[] = [
+  { id: "light", label: "Light", icon: "Sun" },
+  { id: "dark", label: "Dark", icon: "Moon" },
+  { id: "system", label: "System", icon: "Monitor" },
+];
+
 /** Helper to compute relative luminance of hex color (0 = darkest, 255 = lightest) */
 export function getHexLuminance(hex: string): number {
   const cleanHex = hex.replace("#", "");

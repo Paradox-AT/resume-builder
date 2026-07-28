@@ -146,7 +146,7 @@ export default function ResumeViewWrapper({
         onExportProfile={handleExportProfile}
       />
 
-      <div className={`w-full flex-1 flex flex-col justify-start items-center print:block ${isWhiteCard ? "force-light" : ""}`}>
+      <div className={`w-full flex-1 flex flex-col justify-start items-center print:block ${isWhiteCard ? "force-light" : "force-dark"}`}>
         {activeView === "ux" ? (
           <UxRichLayout data={store.data} themeId={activeTheme} />
         ) : (
@@ -181,6 +181,7 @@ export default function ResumeViewWrapper({
         onAddSkill={store.addSkill}
         onRemoveSkill={store.removeSkill}
         onUpdateSkill={store.updateSkill}
+        onUpdateSectionTitle={store.updateSectionTitle}
         onExportDownload={store.exportToJsonDownload}
         onImportFile={store.importFromJsonFile}
         onResetToPreset={store.resetToPreset}

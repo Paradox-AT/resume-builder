@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ResumeViewWrapper from "@/components/ResumeViewWrapper";
 import { getResumeData, RESUME_REGISTRY } from "@/data/resumes";
 import { getSidebarBg, getAccentGradientEnd, DEFAULT_ACCENT_COLOR } from "@/lib";
+import { getThemeDefinition } from "@/types/theme";
 import type { ThemeMode, ViewType, ResumeType } from "@/types";
 
 interface PageProps {
@@ -9,11 +10,23 @@ interface PageProps {
 }
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
-  const { type } = await searchParams;
+  const { type, view, theme } = await searchParams;
   const resume = getResumeData(type);
+  const activeView = view === "ats" ? "ats" : "ux";
+  const defaultTheme = activeView === "ats" ? "ats-standard" : "ux-modern";
+  const themeDef = getThemeDefinition(theme || defaultTheme);
+
+  const titleStr = `${resume.personalInfo.name} – ${resume.personalInfo.role} (${themeDef.label})`;
+  const descStr = resume.summary || `Interactive professional resume for ${resume.personalInfo.name} using the ${themeDef.label} template.`;
+
   return {
-    title: `${resume.personalInfo.name} – ${resume.personalInfo.role}`,
-    description: resume.summary,
+    title: titleStr,
+    description: descStr,
+    openGraph: {
+      title: titleStr,
+      description: descStr,
+      type: "profile",
+    },
   };
 }
 

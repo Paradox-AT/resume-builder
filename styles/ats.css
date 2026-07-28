@@ -27,13 +27,22 @@
   --shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
 }
 
-/* White Sheet override in Dark Mode */
+/* Page Paper Color Overrides */
 .force-light .ats-layout {
   --bg-color: #ffffff !important;
   --text-primary: #18181b !important;
   --text-secondary: #27272a !important;
   --text-muted: #71717a !important;
   --border-color: #e4e4e7 !important;
+  --shadow: 0 4px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+.force-dark .ats-layout {
+  --bg-color: #18181b !important;
+  --text-primary: #f4f4f5 !important;
+  --text-secondary: #d4d4d8 !important;
+  --text-muted: #a1a1aa !important;
+  --border-color: #27272a !important;
   --shadow: 0 4px 32px rgba(0, 0, 0, 0.6) !important;
 }
 

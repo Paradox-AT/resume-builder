@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { Toggle } from "@/components/ui";
-import { UxRichLayout, AtsLayout } from "@/components/layouts";
+import ResumeViewWrapper from "@/components/ResumeViewWrapper";
 import { getResumeData, RESUME_REGISTRY } from "@/data/resumes";
-import { getSidebarBg, getAccentGradientEnd } from "@/lib";
+import { getSidebarBg, getAccentGradientEnd, DEFAULT_ACCENT_COLOR } from "@/lib";
 import type { ThemeMode, ViewType, ResumeType } from "@/types";
 
 interface PageProps {
@@ -21,15 +20,14 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 export default async function Home({ searchParams }: PageProps) {
   const { view, type, color, gradient, mode, card } = await searchParams;
   const activeView: ViewType = view === "ats" ? "ats" : "ux";
-  const isValidType = RESUME_REGISTRY.some((p) => p.id === type);
-  const activeType: ResumeType = isValidType ? (type as ResumeType) : (RESUME_REGISTRY[0].id as ResumeType);
+  const activeType: ResumeType = type ? (type as ResumeType) : (RESUME_REGISTRY[0].id as ResumeType);
   const isGradient = gradient !== "false";
   const isWhiteCard = card !== "dark";
 
   const themeMode: ThemeMode =
     mode === "dark" ? "dark" : mode === "light" ? "light" : "system";
 
-  let activeColor = "#252525";
+  let activeColor = DEFAULT_ACCENT_COLOR;
   if (color) {
     const decoded = decodeURIComponent(color).trim();
     if (decoded.startsWith("#") || decoded.startsWith("rgb") || decoded.startsWith("hsl")) {
@@ -64,21 +62,15 @@ export default async function Home({ searchParams }: PageProps) {
         } as React.CSSProperties
       }
     >
-      <Toggle
+      <ResumeViewWrapper
+        initialData={currentData}
         activeView={activeView}
         activeType={activeType}
         activeColor={activeColor}
-        useGradient={isGradient}
+        isGradient={isGradient}
         themeMode={themeMode}
-        whiteCard={isWhiteCard}
+        isWhiteCard={isWhiteCard}
       />
-      <div className={`w-full flex-1 flex flex-col justify-start items-center print:block ${isWhiteCard ? "force-light" : ""}`}>
-        {activeView === "ux" ? (
-          <UxRichLayout data={currentData} />
-        ) : (
-          <AtsLayout data={currentData} />
-        )}
-      </div>
     </div>
   );
 }

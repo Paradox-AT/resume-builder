@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import type { ResumeProfile } from "@/types";
-import { RESUME_REGISTRY } from "@/data/resumes";
 import { createEmptyResumeData } from "@/lib/sanitize";
+import { RESUME_REGISTRY } from "@/data/resumes";
 
-const CUSTOM_PROFILES_KEY = "resume-wizard:custom-profiles-list";
+const CUSTOM_PROFILES_KEY = "resume-wizard:custom-profiles";
 
 export function useCustomProfiles() {
   const [customProfiles, setCustomProfiles] = useState<ResumeProfile[]>([]);
@@ -13,18 +13,20 @@ export function useCustomProfiles() {
 
   // Load custom profiles from localStorage on client mount
   useEffect(() => {
-    setIsMounted(true);
-    try {
-      const saved = localStorage.getItem(CUSTOM_PROFILES_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          setCustomProfiles(parsed);
+    queueMicrotask(() => {
+      setIsMounted(true);
+      try {
+        const saved = localStorage.getItem(CUSTOM_PROFILES_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            setCustomProfiles(parsed);
+          }
         }
+      } catch (err) {
+        console.error("Failed to load custom profiles:", err);
       }
-    } catch (err) {
-      console.error("Failed to load custom profiles:", err);
-    }
+    });
   }, []);
 
   const saveCustomProfiles = useCallback((profiles: ResumeProfile[]) => {
@@ -75,7 +77,7 @@ export function useCustomProfiles() {
 
   const updateCustomProfileLabel = useCallback(
     (id: string, name: string, role: string) => {
-      let label = role?.trim() || name?.trim() || "New Resume";
+      const label = role?.trim() || name?.trim() || "New Resume";
 
       setCustomProfiles((prev) => {
         const targetIdx = prev.findIndex((p) => p.id === id);
@@ -83,7 +85,10 @@ export function useCustomProfiles() {
         if (prev[targetIdx].label === label) return prev;
 
         const next = [...prev];
-        next[targetIdx] = { ...next[targetIdx], label };
+        next[targetIdx] = {
+          ...next[targetIdx],
+          label,
+        };
         try {
           localStorage.setItem(CUSTOM_PROFILES_KEY, JSON.stringify(next));
         } catch {}
@@ -93,10 +98,9 @@ export function useCustomProfiles() {
     []
   );
 
-  const allProfiles: ResumeProfile[] = [
-    ...RESUME_REGISTRY.map((p) => ({ ...p, isCustom: false })),
-    ...customProfiles,
-  ];
+  const allProfiles: ResumeProfile[] = useMemo(() => {
+    return [...(RESUME_REGISTRY as ResumeProfile[]), ...customProfiles];
+  }, [customProfiles]);
 
   return {
     customProfiles,

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ThemeMode, ResumeType, ViewType, ResumeProfile } from "@/types";
-import { UX_THEMES, ATS_THEMES, type ResumeThemeDefinition } from "@/types";
+import { ATS_THEMES } from "@/types";
 import ThemeThumbnail from "./ThemeThumbnail";
 import { getAccentGradientEnd, applyThemeVars, COLOR_PRESET_GROUPS, PRESET_COLORS, DEFAULT_ACCENT_COLOR, APPEARANCE_MODES, type PresetColorGroup, type PresetColor } from "@/lib";
 import { RESUME_REGISTRY } from "@/data/resumes";
@@ -16,6 +16,7 @@ import {
   IconCheck,
   IconChevronDown,
   IconPrint,
+  IconEye,
   IconEdit,
   IconPlus,
   IconSparkles,
@@ -85,7 +86,7 @@ interface ToggleProps {
   profiles?: ResumeProfile[];
   onToggleWizard?: () => void;
   onOpenWizard?: () => void;
-  onResetPreset?: (presetId?: string) => void;
+  onResetPreset?: (typeId: string) => void;
   onResetEmpty?: () => void;
   onCreateFreshProfile?: () => void;
   onDeleteCustomProfile?: (id: string) => void;
@@ -170,18 +171,18 @@ export default function Toggle({
         onResetPreset(typeId);
       }
     }
-    router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${typeId}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
+    router.replace(`?view=${activeView}&theme=${activeTheme}&type=${typeId}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
   };
 
   const handleSelectTheme = (themeId: string) => {
-    router.replace(`/?view=${activeView}&theme=${themeId}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
+    router.replace(`?view=${activeView}&theme=${themeId}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
   };
 
   const handleApplyColor = (val: string) => {
     const colorStr = val.trim();
     if (!colorStr) return;
     applyThemeVars(colorStr);
-    router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodeURIComponent(colorStr)}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
+    router.replace(`?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodeURIComponent(colorStr)}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
   };
 
   const handleInputChange = (val: string) => {
@@ -189,20 +190,20 @@ export default function Toggle({
     if (val.trim()) {
       const colorStr = val.trim();
       applyThemeVars(colorStr);
-      router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodeURIComponent(colorStr)}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
+      router.replace(`?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodeURIComponent(colorStr)}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`);
     }
   };
 
   const handleToggleGradient = (next: boolean) => {
-    router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodedColor}&gradient=${next}&mode=${themeMode}&card=${cardParam}`);
+    router.replace(`?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodedColor}&gradient=${next}&mode=${themeMode}&card=${cardParam}`);
   };
 
   const handleToggleWhiteCard = (next: boolean) => {
-    router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${next ? "white" : "dark"}`);
+    router.replace(`?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${next ? "white" : "dark"}`);
   };
 
   const handleSetThemeMode = (nextMode: ThemeMode) => {
-    router.replace(`/?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${nextMode}&card=${cardParam}`);
+    router.replace(`?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${nextMode}&card=${cardParam}`);
   };
 
   const dm = effectiveDarkMode;
@@ -375,6 +376,21 @@ export default function Toggle({
                 ATS Scan
               </Link>
             </div>
+
+            {/* Pure View Button */}
+            <Link
+              href={`/view?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`}
+              target="_blank"
+              title="Open Pure Resume View in new tab"
+              className={`flex h-8 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
+                dm
+                  ? "bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white"
+                  : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+              }`}
+            >
+              <IconEye className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Pure View</span>
+            </Link>
 
             {/* Print Button */}
             <button

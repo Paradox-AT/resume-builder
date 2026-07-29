@@ -46,4 +46,6 @@ data/*.ts
 
 # personal assets
 /public/Me.jpg
-/public/me.jpg
+
+# deployment docs
+DEPLOYMENT.md

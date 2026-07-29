@@ -1,91 +1,24 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import ResumeViewWrapper from "@/components/ResumeViewWrapper";
-import { getResumeData, RESUME_REGISTRY } from "@/data/resumes";
-import { getSidebarBg, getAccentGradientEnd, DEFAULT_ACCENT_COLOR } from "@/lib";
-import { getThemeDefinition } from "@/types/theme";
-import type { ThemeMode, ViewType, ResumeType } from "@/types";
+import { getResumeData } from "@/data/resumes";
 
-interface PageProps {
-  searchParams: Promise<{ view?: string; theme?: string; type?: string; color?: string; gradient?: string; mode?: string; card?: string }>;
-}
+const defaultResume = getResumeData();
 
-export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
-  const { type, view, theme } = await searchParams;
-  const resume = getResumeData(type);
-  const activeView = view === "ats" ? "ats" : "ux";
-  const defaultTheme = activeView === "ats" ? "ats-standard" : "ux-modern";
-  const themeDef = getThemeDefinition(theme || defaultTheme);
+export const metadata: Metadata = {
+  title: `${defaultResume.personalInfo.name} – ${defaultResume.personalInfo.role}`,
+  description: defaultResume.summary || `Interactive professional resume for ${defaultResume.personalInfo.name}.`,
+  openGraph: {
+    title: `${defaultResume.personalInfo.name} – ${defaultResume.personalInfo.role}`,
+    description: defaultResume.summary || `Interactive professional resume for ${defaultResume.personalInfo.name}.`,
+    type: "profile",
+  },
+};
 
-  const titleStr = `${resume.personalInfo.name} – ${resume.personalInfo.role} (${themeDef.label})`;
-  const descStr = resume.summary || `Interactive professional resume for ${resume.personalInfo.name} using the ${themeDef.label} template.`;
-
-  return {
-    title: titleStr,
-    description: descStr,
-    openGraph: {
-      title: titleStr,
-      description: descStr,
-      type: "profile",
-    },
-  };
-}
-
-export default async function Home({ searchParams }: PageProps) {
-  const { view, theme, type, color, gradient, mode, card } = await searchParams;
-  const activeView: ViewType = view === "ats" ? "ats" : "ux";
-  const activeTheme = theme || (activeView === "ats" ? "ats-standard" : "ux-modern");
-  const activeType: ResumeType = type ? (type as ResumeType) : (RESUME_REGISTRY[0].id as ResumeType);
-  const isGradient = gradient !== "false";
-  const isWhiteCard = card !== "dark";
-
-  const themeMode: ThemeMode =
-    mode === "dark" ? "dark" : mode === "light" ? "light" : "system";
-
-  let activeColor = DEFAULT_ACCENT_COLOR;
-  if (color) {
-    const decoded = decodeURIComponent(color).trim();
-    if (decoded.startsWith("#") || decoded.startsWith("rgb") || decoded.startsWith("hsl")) {
-      activeColor = decoded;
-    } else {
-      activeColor = `#${decoded}`;
-    }
-  }
-
-  const sidebarBg = getSidebarBg(activeColor);
-  const gradientEnd = getAccentGradientEnd(activeColor);
-  const currentData = getResumeData(activeType);
-
-  const modeClass =
-    themeMode === "dark"
-      ? "dark bg-zinc-950"
-      : themeMode === "light"
-      ? "light bg-zinc-200"
-      : "bg-zinc-200 dark:bg-zinc-950";
-
+export default function Home() {
   return (
-    <div
-      className={`min-h-screen w-full flex flex-col items-center py-6 px-4 transition-colors duration-300 print:p-0 print:bg-white print:block ${modeClass} ${
-        isGradient ? "use-gradient" : ""
-      }`}
-      style={
-        {
-          "--accent-color": activeColor,
-          "--accent-gradient-end": gradientEnd,
-          "--accent-gradient": `linear-gradient(135deg, ${activeColor}, ${gradientEnd})`,
-          "--sidebar-bg": sidebarBg,
-        } as React.CSSProperties
-      }
-    >
-      <ResumeViewWrapper
-        initialData={currentData}
-        activeView={activeView}
-        activeTheme={activeTheme}
-        activeType={activeType}
-        activeColor={activeColor}
-        isGradient={isGradient}
-        themeMode={themeMode}
-        isWhiteCard={isWhiteCard}
-      />
-    </div>
+    <Suspense fallback={<div className="min-h-screen w-full bg-zinc-950 flex items-center justify-center text-white text-xs">Loading Resume Builder...</div>}>
+      <ResumeViewWrapper />
+    </Suspense>
   );
 }

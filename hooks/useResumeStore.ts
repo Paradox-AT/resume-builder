@@ -19,6 +19,11 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
   const [canRedo, setCanRedo] = useState(false);
 
   const storageKey = `resume-wizard:${profileId}`;
+  const initialDataRef = useRef(initialData);
+
+  useEffect(() => {
+    initialDataRef.current = initialData;
+  }, [initialData]);
 
   // Update history state indicators
   const syncHistoryFlags = useCallback(() => {
@@ -26,30 +31,35 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
   }, []);
 
-  // Hydrate from localStorage on client mount
+  // Hydrate from localStorage on client mount & whenever storageKey changes
   useEffect(() => {
-    setIsMounted(true);
-    try {
-      const saved = localStorage.getItem(storageKey);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        const sanitized = sanitizeResumeData(parsed);
-        setData(sanitized);
-        setIsDirty(true);
-        historyRef.current = [sanitized];
-        historyIndexRef.current = 0;
-        syncHistoryFlags();
-      } else {
-        setData(initialData);
-        setIsDirty(false);
-        historyRef.current = [initialData];
-        historyIndexRef.current = 0;
-        syncHistoryFlags();
+    queueMicrotask(() => {
+      setIsMounted(true);
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const sanitized = sanitizeResumeData(parsed);
+          setData(sanitized);
+          setIsDirty(true);
+          historyRef.current = [sanitized];
+          historyIndexRef.current = 0;
+          setCanUndo(false);
+          setCanRedo(false);
+        } else {
+          const fallback = initialDataRef.current;
+          setData(fallback);
+          setIsDirty(false);
+          historyRef.current = [fallback];
+          historyIndexRef.current = 0;
+          setCanUndo(false);
+          setCanRedo(false);
+        }
+      } catch (err) {
+        console.error("Failed to load resume state from localStorage:", err);
       }
-    } catch {
-      setData(initialData);
-    }
-  }, [profileId, storageKey, initialData, syncHistoryFlags]);
+    });
+  }, [storageKey]);
 
   // Push state to history & save to localStorage
   const updateData = useCallback(
@@ -58,11 +68,11 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
         const next = typeof nextDataOrFn === "function" ? nextDataOrFn(prev) : nextDataOrFn;
         const sanitized = sanitizeResumeData(next);
 
-        // Persist to localStorage
+        // Save to localStorage
         try {
           localStorage.setItem(storageKey, JSON.stringify(sanitized));
         } catch (err) {
-          console.error("Failed to save to localStorage:", err);
+          console.error("Failed to save resume state to localStorage:", err);
         }
 
         setIsDirty(true);
@@ -83,6 +93,7 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     [storageKey, syncHistoryFlags]
   );
 
+  // Undo action
   const undo = useCallback(() => {
     if (historyIndexRef.current > 0) {
       historyIndexRef.current -= 1;
@@ -90,11 +101,14 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
       setData(prev);
       try {
         localStorage.setItem(storageKey, JSON.stringify(prev));
-      } catch {}
+      } catch (err) {
+        console.error("Failed to save undo state:", err);
+      }
       syncHistoryFlags();
     }
   }, [storageKey, syncHistoryFlags]);
 
+  // Redo action
   const redo = useCallback(() => {
     if (historyIndexRef.current < historyRef.current.length - 1) {
       historyIndexRef.current += 1;
@@ -102,12 +116,14 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
       setData(next);
       try {
         localStorage.setItem(storageKey, JSON.stringify(next));
-      } catch {}
+      } catch (err) {
+        console.error("Failed to save redo state:", err);
+      }
       syncHistoryFlags();
     }
   }, [storageKey, syncHistoryFlags]);
 
-  // Section updaters
+  // Personal Info Form Mutators
   const updatePersonalInfo = useCallback(
     (field: keyof ResumeData["personalInfo"], value: string) => {
       updateData((prev) => ({
@@ -121,26 +137,18 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     [updateData]
   );
 
+  // Summary Form Mutator
   const updateSummary = useCallback(
     (summary: string) => {
-      updateData((prev) => ({ ...prev, summary }));
-    },
-    [updateData]
-  );
-
-  const updateSectionTitle = useCallback(
-    (field: keyof SectionTitles, value: string) => {
       updateData((prev) => ({
         ...prev,
-        sectionTitles: {
-          ...prev.sectionTitles,
-          [field]: value,
-        },
+        summary,
       }));
     },
     [updateData]
   );
 
+  // Contact Form Mutator
   const updateContact = useCallback(
     (field: keyof ResumeData["contact"], value: string) => {
       updateData((prev) => ({
@@ -154,17 +162,34 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     [updateData]
   );
 
-  // Work History operations
+  // Section Titles Form Mutator
+  const updateSectionTitle = useCallback(
+    (field: keyof SectionTitles, value: string) => {
+      updateData((prev) => ({
+        ...prev,
+        sectionTitles: {
+          ...(prev.sectionTitles || {}),
+          [field]: value,
+        },
+      }));
+    },
+    [updateData]
+  );
+
+  // Work Experience Form Mutators
   const addWorkExperience = useCallback(() => {
     updateData((prev) => {
-      const newWork: WorkExperience = {
+      const newJob: WorkExperience = {
         id: `work-${Date.now()}`,
-        title: "Senior Software Engineer",
+        title: "Software Engineer",
         company: "Company Name",
-        date: { start: "2024-01", end: "Present" },
-        bullets: ["Key achievement or responsibility line."],
+        date: { start: "2023-01", end: "Present" },
+        bullets: ["Achieved X by performing Y, resulting in Z."],
       };
-      return { ...prev, workHistory: [newWork, ...prev.workHistory] };
+      return {
+        ...prev,
+        workHistory: [newJob, ...(prev.workHistory || [])],
+      };
     });
   }, [updateData]);
 
@@ -172,7 +197,7 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     (id: string) => {
       updateData((prev) => ({
         ...prev,
-        workHistory: prev.workHistory.filter((item) => item.id !== id),
+        workHistory: (prev.workHistory || []).filter((w) => w.id !== id),
       }));
     },
     [updateData]
@@ -182,9 +207,7 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     (id: string, updated: Partial<WorkExperience>) => {
       updateData((prev) => ({
         ...prev,
-        workHistory: prev.workHistory.map((item) =>
-          item.id === id ? { ...item, ...updated } : item
-        ),
+        workHistory: (prev.workHistory || []).map((w) => (w.id === id ? { ...w, ...updated } : w)),
       }));
     },
     [updateData]
@@ -193,30 +216,30 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
   const reorderWorkExperience = useCallback(
     (id: string, direction: "up" | "down") => {
       updateData((prev) => {
-        const idx = prev.workHistory.findIndex((item) => item.id === id);
+        const list = [...(prev.workHistory || [])];
+        const idx = list.findIndex((w) => w.id === id);
         if (idx === -1) return prev;
         const targetIdx = direction === "up" ? idx - 1 : idx + 1;
-        if (targetIdx < 0 || targetIdx >= prev.workHistory.length) return prev;
-
-        const nextList = [...prev.workHistory];
-        const [moved] = nextList.splice(idx, 1);
-        nextList.splice(targetIdx, 0, moved);
-        return { ...prev, workHistory: nextList };
+        if (targetIdx < 0 || targetIdx >= list.length) return prev;
+        const [moved] = list.splice(idx, 1);
+        list.splice(targetIdx, 0, moved);
+        return { ...prev, workHistory: list };
       });
     },
     [updateData]
   );
 
-  // Bullet operations within work experience
   const addWorkBullet = useCallback(
     (workId: string) => {
       updateData((prev) => ({
         ...prev,
-        workHistory: prev.workHistory.map((item) =>
-          item.id === workId
-            ? { ...item, bullets: [...item.bullets, "New achievement bullet point."] }
-            : item
-        ),
+        workHistory: (prev.workHistory || []).map((w) => {
+          if (w.id !== workId) return w;
+          return {
+            ...w,
+            bullets: [...(w.bullets || []), "New achievement bullet point."],
+          };
+        }),
       }));
     },
     [updateData]
@@ -226,11 +249,12 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     (workId: string, bulletIdx: number) => {
       updateData((prev) => ({
         ...prev,
-        workHistory: prev.workHistory.map((item) =>
-          item.id === workId
-            ? { ...item, bullets: item.bullets.filter((_, idx) => idx !== bulletIdx) }
-            : item
-        ),
+        workHistory: (prev.workHistory || []).map((w) => {
+          if (w.id !== workId) return w;
+          const bullets = [...(w.bullets || [])];
+          bullets.splice(bulletIdx, 1);
+          return { ...w, bullets };
+        }),
       }));
     },
     [updateData]
@@ -240,14 +264,12 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     (workId: string, bulletIdx: number, text: string) => {
       updateData((prev) => ({
         ...prev,
-        workHistory: prev.workHistory.map((item) =>
-          item.id === workId
-            ? {
-                ...item,
-                bullets: item.bullets.map((b, idx) => (idx === bulletIdx ? text : b)),
-              }
-            : item
-        ),
+        workHistory: (prev.workHistory || []).map((w) => {
+          if (w.id !== workId) return w;
+          const bullets = [...(w.bullets || [])];
+          bullets[bulletIdx] = text;
+          return { ...w, bullets };
+        }),
       }));
     },
     [updateData]
@@ -257,30 +279,33 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     (workId: string, bulletIdx: number, direction: "up" | "down") => {
       updateData((prev) => ({
         ...prev,
-        workHistory: prev.workHistory.map((item) => {
-          if (item.id !== workId) return item;
+        workHistory: (prev.workHistory || []).map((w) => {
+          if (w.id !== workId) return w;
+          const bullets = [...(w.bullets || [])];
           const targetIdx = direction === "up" ? bulletIdx - 1 : bulletIdx + 1;
-          if (targetIdx < 0 || targetIdx >= item.bullets.length) return item;
-          const nextBullets = [...item.bullets];
-          const [moved] = nextBullets.splice(bulletIdx, 1);
-          nextBullets.splice(targetIdx, 0, moved);
-          return { ...item, bullets: nextBullets };
+          if (targetIdx < 0 || targetIdx >= bullets.length) return w;
+          const [moved] = bullets.splice(bulletIdx, 1);
+          bullets.splice(targetIdx, 0, moved);
+          return { ...w, bullets };
         }),
       }));
     },
     [updateData]
   );
 
-  // Education operations
+  // Education Form Mutators
   const addEducation = useCallback(() => {
     updateData((prev) => {
       const newEdu: Education = {
         id: `edu-${Date.now()}`,
-        degree: "Bachelor of Science in Computer Science",
         school: "University Name",
-        date: { start: "2018-09", end: "2022-06" },
+        degree: "B.S. in Computer Science",
+        date: { start: "2018-09", end: "2022-05" },
       };
-      return { ...prev, education: [...prev.education, newEdu] };
+      return {
+        ...prev,
+        education: [newEdu, ...(prev.education || [])],
+      };
     });
   }, [updateData]);
 
@@ -288,7 +313,7 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     (id: string) => {
       updateData((prev) => ({
         ...prev,
-        education: prev.education.filter((item) => item.id !== id),
+        education: (prev.education || []).filter((e) => e.id !== id),
       }));
     },
     [updateData]
@@ -298,9 +323,7 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     (id: string, updated: Partial<Education>) => {
       updateData((prev) => ({
         ...prev,
-        education: prev.education.map((item) =>
-          item.id === id ? { ...item, ...updated } : item
-        ),
+        education: (prev.education || []).map((e) => (e.id === id ? { ...e, ...updated } : e)),
       }));
     },
     [updateData]
@@ -309,26 +332,32 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
   const reorderEducation = useCallback(
     (id: string, direction: "up" | "down") => {
       updateData((prev) => {
-        const idx = prev.education.findIndex((item) => item.id === id);
+        const list = [...(prev.education || [])];
+        const idx = list.findIndex((e) => e.id === id);
         if (idx === -1) return prev;
         const targetIdx = direction === "up" ? idx - 1 : idx + 1;
-        if (targetIdx < 0 || targetIdx >= prev.education.length) return prev;
-
-        const nextList = [...prev.education];
-        const [moved] = nextList.splice(idx, 1);
-        nextList.splice(targetIdx, 0, moved);
-        return { ...prev, education: nextList };
+        if (targetIdx < 0 || targetIdx >= list.length) return prev;
+        const [moved] = list.splice(idx, 1);
+        list.splice(targetIdx, 0, moved);
+        return { ...prev, education: list };
       });
     },
     [updateData]
   );
 
-  // Skills & Languages operations
+  // Skills & Languages Form Mutators
   const addSkill = useCallback(
     (category: "skills" | "languages") => {
       updateData((prev) => {
-        const newSkill: Skill = { name: "New Skill", level: 3 };
-        return { ...prev, [category]: [...prev[category], newSkill] };
+        const newSkill: Skill = {
+          name: category === "skills" ? "New Skill" : "Language",
+          level: 4,
+        };
+        const currentList = prev[category] || [];
+        return {
+          ...prev,
+          [category]: [...currentList, newSkill],
+        };
       });
     },
     [updateData]
@@ -336,96 +365,98 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
 
   const removeSkill = useCallback(
     (category: "skills" | "languages", idx: number) => {
-      updateData((prev) => ({
-        ...prev,
-        [category]: prev[category].filter((_, i) => i !== idx),
-      }));
+      updateData((prev) => {
+        const currentList = [...(prev[category] || [])];
+        currentList.splice(idx, 1);
+        return {
+          ...prev,
+          [category]: currentList,
+        };
+      });
     },
     [updateData]
   );
 
   const updateSkill = useCallback(
     (category: "skills" | "languages", idx: number, updated: Partial<Skill>) => {
-      updateData((prev) => ({
-        ...prev,
-        [category]: prev[category].map((item, i) =>
-          i === idx ? { ...item, ...updated } : item
-        ),
-      }));
-    },
-    [updateData]
-  );
-
-  // Download export JSON
-  const exportToJsonDownload = useCallback(() => {
-    const jsonStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    const safeName = (data.personalInfo.name || "resume")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "_");
-    a.download = `${safeName}_resume_data.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [data]);
-
-  // Import JSON from file input with size + MIME guards
-  const importFromJsonFile = useCallback(
-    (file: File): Promise<{ success: boolean; error?: string }> => {
-      return new Promise((resolve) => {
-        if (file.size > 1024 * 1024) {
-          resolve({ success: false, error: "File size exceeds 1MB limit." });
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            const content = e.target?.result as string;
-            const parsed = JSON.parse(content);
-            const sanitized = sanitizeResumeData(parsed);
-            updateData(sanitized);
-            resolve({ success: true });
-          } catch (err) {
-            resolve({
-              success: false,
-              error: err instanceof Error ? err.message : "Failed to parse JSON file.",
-            });
-          }
+      updateData((prev) => {
+        const currentList = [...(prev[category] || [])];
+        if (!currentList[idx]) return prev;
+        currentList[idx] = { ...currentList[idx], ...updated };
+        return {
+          ...prev,
+          [category]: currentList,
         };
-        reader.onerror = () => {
-          resolve({ success: false, error: "Failed to read file." });
-        };
-        reader.readAsText(file);
       });
     },
     [updateData]
   );
 
-  // Reset to preset or clear
+  // Reset to initial preset
   const resetToPreset = useCallback(
-    (presetType?: string) => {
-      const targetPreset = presetType ? getResumeData(presetType) : initialData;
-      try {
-        localStorage.removeItem(storageKey);
-      } catch {}
+    (targetPresetId?: string) => {
+      const idToLoad = targetPresetId || profileId;
+      const targetPreset = getResumeData(idToLoad);
       setData(targetPreset);
       setIsDirty(false);
+      try {
+        localStorage.removeItem(storageKey);
+      } catch (err) {
+        console.error("Failed to clear localStorage on reset:", err);
+      }
       historyRef.current = [targetPreset];
       historyIndexRef.current = 0;
       syncHistoryFlags();
     },
-    [initialData, storageKey, syncHistoryFlags]
+    [profileId, storageKey, syncHistoryFlags]
   );
 
+  // Reset to empty schema template
   const resetToEmpty = useCallback(() => {
     const empty = createEmptyResumeData();
-    updateData(empty);
-  }, [updateData]);
+    setData(empty);
+    setIsDirty(true);
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(empty));
+    } catch (err) {
+      console.error("Failed to save empty reset to localStorage:", err);
+    }
+    historyRef.current = [empty];
+    historyIndexRef.current = 0;
+    syncHistoryFlags();
+  }, [storageKey, syncHistoryFlags]);
+
+  // Export to JSON download file
+  const exportToJsonDownload = useCallback(() => {
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const safeName = (data.personalInfo?.name || "resume").toLowerCase().replace(/\s+/g, "_");
+    a.download = `${safeName}_${profileId}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [data, profileId]);
+
+  // Import from JSON file
+  const importFromJsonFile = useCallback(
+    async (file: File): Promise<{ success: boolean; error?: string }> => {
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const sanitized = sanitizeResumeData(parsed);
+        updateData(sanitized);
+        return { success: true };
+      } catch (err) {
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Invalid JSON file structure.",
+        };
+      }
+    },
+    [updateData]
+  );
 
   return {
     data,
@@ -437,8 +468,8 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     redo,
     updatePersonalInfo,
     updateSummary,
-    updateSectionTitle,
     updateContact,
+    updateSectionTitle,
     addWorkExperience,
     removeWorkExperience,
     updateWorkExperience,
@@ -454,9 +485,9 @@ export function useResumeStore(initialData: ResumeData, profileId: string = "blo
     addSkill,
     removeSkill,
     updateSkill,
-    exportToJsonDownload,
-    importFromJsonFile,
     resetToPreset,
     resetToEmpty,
+    exportToJsonDownload,
+    importFromJsonFile,
   };
 }

@@ -77,10 +77,10 @@ interface ResumeWizardDrawerProps {
   onRemoveSkill: (category: "skills" | "languages", idx: number) => void;
   onUpdateSkill: (category: "skills" | "languages", idx: number, updated: Partial<Skill>) => void;
   onUpdateSectionTitle?: (field: keyof SectionTitles, value: string) => void;
-  onExportDownload: () => void;
-  onImportFile: (file: File) => Promise<{ success: boolean; error?: string }>;
-  onResetToPreset: (presetId?: string) => void;
-  onResetToEmpty: () => void;
+  onExportDownload?: () => void;
+  onImportFile?: (file: File) => void;
+  onResetToPreset?: () => void;
+  onResetToEmpty?: () => void;
 }
 
 export default function ResumeWizardDrawer({
@@ -111,17 +111,15 @@ export default function ResumeWizardDrawer({
   onRemoveSkill,
   onUpdateSkill,
   onUpdateSectionTitle,
-  onExportDownload,
-  onImportFile,
-  onResetToPreset,
-  onResetToEmpty,
 }: ResumeWizardDrawerProps) {
   const [activeStep, setActiveStep] = useState<StepId>("personal");
 
   // Reset to 1st step ("personal") whenever drawer opens
   useEffect(() => {
     if (isOpen) {
-      setActiveStep("personal");
+      queueMicrotask(() => {
+        setActiveStep("personal");
+      });
     }
   }, [isOpen]);
 

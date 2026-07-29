@@ -1,46 +1,90 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { ResumeData, ViewType, ResumeType, ThemeMode } from "@/types";
 import { Toggle, PromptModal, ConfirmModal } from "@/components/ui";
 import { UxRichLayout, AtsLayout } from "@/components/layouts";
 import { useResumeStore } from "@/hooks/useResumeStore";
 import { useCustomProfiles } from "@/hooks/useCustomProfiles";
-import { getResumeData } from "@/data/resumes";
+import { getResumeData, RESUME_REGISTRY } from "@/data/resumes";
+import { getSidebarBg, getAccentGradientEnd, DEFAULT_ACCENT_COLOR } from "@/lib";
 import ResumeWizardDrawer from "@/components/wizard/ResumeWizardDrawer";
 
 interface ResumeViewWrapperProps {
-  initialData: ResumeData;
-  activeView: ViewType;
+  initialData?: ResumeData;
+  activeView?: ViewType;
   activeTheme?: string;
-  activeType: ResumeType;
-  activeColor: string;
-  isGradient: boolean;
-  themeMode: ThemeMode;
-  isWhiteCard: boolean;
+  activeType?: ResumeType;
+  activeColor?: string;
+  isGradient?: boolean;
+  themeMode?: ThemeMode;
+  isWhiteCard?: boolean;
 }
 
 export default function ResumeViewWrapper({
-  initialData,
-  activeView,
-  activeTheme = "ux-modern",
-  activeType,
-  activeColor,
-  isGradient,
-  themeMode,
-  isWhiteCard,
-}: ResumeViewWrapperProps) {
+  initialData: propInitialData,
+  activeView: propActiveView,
+  activeTheme: propActiveTheme,
+  activeType: propActiveType,
+  activeColor: propActiveColor,
+  isGradient: propIsGradient,
+  themeMode: propThemeMode,
+  isWhiteCard: propIsWhiteCard,
+}: ResumeViewWrapperProps = {}) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Read searchParams from URL dynamically on client side
+  const viewParam = searchParams.get("view");
+  const themeParam = searchParams.get("theme");
+  const typeParam = searchParams.get("type");
+  const colorParam = searchParams.get("color");
+  const gradientParam = searchParams.get("gradient");
+  const modeParam = searchParams.get("mode");
+  const cardParam = searchParams.get("card");
+
+  const activeView: ViewType = viewParam === "ats" ? "ats" : (propActiveView || "ux");
+  const activeTheme = themeParam || propActiveTheme || (activeView === "ats" ? "ats-standard" : "ux-modern");
+  const activeType: ResumeType = (typeParam as ResumeType) || propActiveType || (RESUME_REGISTRY[0].id as ResumeType);
+  const isGradient = gradientParam !== null ? gradientParam !== "false" : (propIsGradient ?? true);
+  const isWhiteCard = cardParam !== null ? cardParam !== "dark" : (propIsWhiteCard ?? true);
+
+  const themeMode: ThemeMode =
+    modeParam === "dark" ? "dark" : modeParam === "light" ? "light" : (propThemeMode || "system");
+
+  let activeColor = propActiveColor || DEFAULT_ACCENT_COLOR;
+  if (colorParam) {
+    const decoded = decodeURIComponent(colorParam).trim();
+    if (decoded.startsWith("#") || decoded.startsWith("rgb") || decoded.startsWith("hsl")) {
+      activeColor = decoded;
+    } else {
+      activeColor = `#${decoded}`;
+    }
+  }
+
+  const sidebarBg = getSidebarBg(activeColor);
+  const gradientEnd = getAccentGradientEnd(activeColor);
+  const currentData = propInitialData || getResumeData(activeType);
+
+  const modeClass =
+    themeMode === "dark"
+      ? "dark bg-zinc-950"
+      : themeMode === "light"
+      ? "light bg-zinc-200"
+      : "bg-zinc-200 dark:bg-zinc-950";
+
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [currentActiveType, setCurrentActiveType] = useState<string>(activeType);
 
   useEffect(() => {
-    setCurrentActiveType(activeType);
-  }, [activeType]);
+    if (currentActiveType !== activeType) {
+      queueMicrotask(() => setCurrentActiveType(activeType));
+    }
+  }, [activeType, currentActiveType]);
 
   const customProfilesStore = useCustomProfiles();
-  const store = useResumeStore(initialData, currentActiveType);
+  const store = useResumeStore(currentData, currentActiveType);
 
   // Sync custom profile label dynamically when name or role changes
   useEffect(() => {
@@ -70,9 +114,9 @@ export default function ResumeViewWrapper({
     const newId = customProfilesStore.createFreshProfile(profileName);
     setCurrentActiveType(newId);
     const encodedColor = encodeURIComponent(activeColor);
-    const cardParam = isWhiteCard ? "white" : "dark";
+    const currentCardParam = isWhiteCard ? "white" : "dark";
     router.replace(
-      `/?view=${activeView}&type=${newId}&color=${encodedColor}&gradient=${isGradient}&mode=${themeMode}&card=${cardParam}`
+      `?view=${activeView}&type=${newId}&color=${encodedColor}&gradient=${isGradient}&mode=${themeMode}&card=${currentCardParam}`
     );
     setIsWizardOpen(true);
   };
@@ -91,9 +135,9 @@ export default function ResumeViewWrapper({
     if (currentActiveType === id) {
       setCurrentActiveType("blockchain");
       const encodedColor = encodeURIComponent(activeColor);
-      const cardParam = isWhiteCard ? "white" : "dark";
+      const currentCardParam = isWhiteCard ? "white" : "dark";
       router.replace(
-        `/?view=${activeView}&type=blockchain&color=${encodedColor}&gradient=${isGradient}&mode=${themeMode}&card=${cardParam}`
+        `?view=${activeView}&type=blockchain&color=${encodedColor}&gradient=${isGradient}&mode=${themeMode}&card=${currentCardParam}`
       );
     }
   };
@@ -125,7 +169,19 @@ export default function ResumeViewWrapper({
   };
 
   return (
-    <>
+    <div
+      className={`min-h-screen w-full flex flex-col items-center py-6 px-4 transition-colors duration-300 print:p-0 print:bg-white print:block ${modeClass} ${
+        isGradient ? "use-gradient" : ""
+      }`}
+      style={
+        {
+          "--accent-color": activeColor,
+          "--accent-gradient-end": gradientEnd,
+          "--accent-gradient": `linear-gradient(135deg, ${activeColor}, ${gradientEnd})`,
+          "--sidebar-bg": sidebarBg,
+        } as React.CSSProperties
+      }
+    >
       <Toggle
         activeView={activeView}
         activeTheme={activeTheme}
@@ -208,6 +264,6 @@ export default function ResumeViewWrapper({
         onConfirm={handleConfirmDeleteProfile}
         onCancel={() => setDeleteTarget(null)}
       />
-    </>
+    </div>
   );
 }

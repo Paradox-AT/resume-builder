@@ -28,8 +28,11 @@ export function PromptModal({
 
   useEffect(() => {
     if (isOpen) {
-      setValue(defaultValue);
-      setTimeout(() => inputRef.current?.focus(), 50);
+      queueMicrotask(() => {
+        setValue(defaultValue);
+      });
+      const timer = setTimeout(() => inputRef.current?.focus(), 50);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, defaultValue]);
 

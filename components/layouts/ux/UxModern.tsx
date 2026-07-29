@@ -137,6 +137,7 @@ export default function UxModern({ data }: UxModernProps) {
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={personalInfo.profilePhotoUrl}
+                alt={personalInfo.name || "Profile Photo"}
                 className="profile-photo-img"
                 onError={() => setImgError(true)}
               />

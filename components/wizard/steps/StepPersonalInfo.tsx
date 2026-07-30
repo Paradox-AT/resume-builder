@@ -3,6 +3,7 @@
 import { useId, useRef } from "react";
 import type { ResumeData } from "@/types";
 import { IconUpload, IconTrash } from "@/components/ui/icons";
+import { resolveAssetUrl } from "@/lib";
 
 interface StepPersonalInfoProps {
   data: ResumeData;
@@ -93,8 +94,9 @@ export default function StepPersonalInfo({
               {/* Photo Preview Thumbnail */}
               <div className="h-12 w-12 shrink-0 rounded-full border border-zinc-300 dark:border-zinc-700 overflow-hidden bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center">
                 {data.personalInfo.profilePhotoUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
                   <img
-                    src={data.personalInfo.profilePhotoUrl}
+                    src={resolveAssetUrl(data.personalInfo.profilePhotoUrl)}
                     alt="Profile Preview"
                     className="h-full w-full object-cover"
                   />

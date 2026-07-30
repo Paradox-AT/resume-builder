@@ -117,3 +117,20 @@ export function applyThemeVars(color: string): void {
   document.documentElement.style.setProperty("--accent-gradient", `linear-gradient(135deg, ${color}, ${endColor})`);
   document.documentElement.style.setProperty("--sidebar-bg", getSidebarBg(color));
 }
+
+// Resolve relative asset URLs (like /Me.jpg) with base path for sub-directory deployments (e.g. GitHub Pages)
+export function resolveAssetUrl(url?: string): string {
+  if (!url) return "";
+  if (
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("data:") ||
+    url.startsWith("//")
+  ) {
+    return url;
+  }
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+  const cleanPath = url.startsWith("/") ? url : `/${url}`;
+  return `${basePath}${cleanPath}`;
+}
+

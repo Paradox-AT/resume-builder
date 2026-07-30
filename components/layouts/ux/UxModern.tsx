@@ -3,7 +3,7 @@
 import { useState } from "react";
 import "@/styles/ux.css";
 import type { ResumeData } from "@/types";
-import { getInitials } from "@/lib";
+import { getInitials, resolveAssetUrl } from "@/lib";
 
 interface UxModernProps {
   data: ResumeData;
@@ -136,7 +136,7 @@ export default function UxModern({ data }: UxModernProps) {
             {hasPhoto && (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
-                src={personalInfo.profilePhotoUrl}
+                src={resolveAssetUrl(personalInfo.profilePhotoUrl)}
                 alt={personalInfo.name || "Profile Photo"}
                 className="profile-photo-img"
                 onError={() => setImgError(true)}

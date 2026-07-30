@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ResumeData, ContactInfo } from "@/types";
-import { getInitials } from "@/lib";
+import { getInitials, resolveAssetUrl } from "@/lib";
 import ContactBar from "./ContactBar";
 
 interface ResumeHeaderProps {
@@ -21,6 +21,7 @@ export default function ResumeHeader({
   const initials = personalInfo.avatarInitials || getInitials(personalInfo.name);
   const [imgError, setImgError] = useState(false);
   const hasPhoto = Boolean(personalInfo.profilePhotoUrl) && !imgError;
+  const photoUrl = resolveAssetUrl(personalInfo.profilePhotoUrl);
 
   if (variant === "ux-executive") {
     return (
@@ -29,8 +30,9 @@ export default function ResumeHeader({
           <div className="flex items-center gap-5 text-center sm:text-left">
             <div className="h-16 w-16 shrink-0 rounded-full border-2 border-white/20 overflow-hidden bg-zinc-800 flex items-center justify-center">
               {hasPhoto ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
-                  src={personalInfo.profilePhotoUrl}
+                  src={photoUrl}
                   alt={personalInfo.name}
                   onError={() => setImgError(true)}
                   className="h-full w-full object-cover"
@@ -55,8 +57,9 @@ export default function ResumeHeader({
       <header className={`w-full text-center pb-6 mb-6 border-b border-zinc-200 dark:border-zinc-800 ${className}`}>
         <div className="mx-auto h-20 w-20 rounded-full border-4 border-zinc-900 dark:border-white overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-3 shadow-md">
           {hasPhoto ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img
-              src={personalInfo.profilePhotoUrl}
+              src={photoUrl}
               alt={personalInfo.name}
               onError={() => setImgError(true)}
               className="h-full w-full object-cover"
@@ -96,8 +99,9 @@ export default function ResumeHeader({
     <header className={`resume-header ${className}`}>
       <div className="avatar" aria-hidden="true">
         {hasPhoto ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img
-            src={personalInfo.profilePhotoUrl}
+            src={photoUrl}
             alt={personalInfo.name}
             onError={() => setImgError(true)}
             className="avatar-img"
@@ -108,7 +112,7 @@ export default function ResumeHeader({
       </div>
       <div>
         <h1>{personalInfo.name}</h1>
-        <div className="role">{personalInfo.role}</div>
+        <p className="role">{personalInfo.role}</p>
       </div>
     </header>
   );

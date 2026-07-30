@@ -120,7 +120,7 @@ export default function PureResumeView() {
           className="flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
           title="Print or save PDF"
         >
-          <IconPrint className="h-3.5 w-3.5 text-[var(--accent-color)]" />
+          <IconPrint className="h-3.5 w-3.5 text-zinc-400" />
           <span>Print PDF</span>
         </button>
 

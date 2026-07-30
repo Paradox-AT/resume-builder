@@ -44,8 +44,5 @@ next-env.d.ts
 data/*.ts
 !data/index.ts
 
-# personal assets
-/public/Me.jpg
-
 # deployment docs
 DEPLOYMENT.md

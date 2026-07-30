@@ -2,15 +2,13 @@
 
 A high-performance, dynamic resume builder application built with **Next.js 16**, **React 19**, **TypeScript 5**, and **Tailwind CSS 4**. Designed with a dual layout rendering engine featuring **12 Classic ATS (Applicant Tracking System)** templates and a **UX Rich Modern Sidebar** layout, combined with real-time browser preview, full state hydration, local storage persistence, multi-profile target management, and 1-click pixel-perfect PDF vector printing.
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-https://paradox--at.github.io/resume--builder/-10B981?style=for-the-badge&logo=githubpages&logoColor=white)](https://paradox-at.github.io/resume-builder/)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16.2.12-000000?style=flat-square&logo=nextdotjs)](https://nextjs.org/)
 [![React 19](https://img.shields.io/badge/React-19.2.8-61DAFB?style=flat-square&logo=react)](https://react.dev/)
 [![TypeScript 5](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS 4](https://img.shields.io/badge/Tailwind-4.x-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=flat-square)](LICENSE)
 
-🚀 **Live Demo**: [https://paradox-at.github.io/resume-builder/](https://paradox-at.github.io/resume-builder/)
-
+[![Live Demo](https://img.shields.io/badge/Live_Demo-https://paradox--at.github.io/resume--builder/-10B981?style=for-the-badge&logo=githubpages&logoColor=white)](https://paradox-at.github.io/resume-builder/)
 ---
 
 ## ✨ Key Features

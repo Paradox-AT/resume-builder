@@ -28,6 +28,7 @@ import {
   IconZap,
   IconTrash,
   IconDownload,
+  IconUpload,
   IconCode,
   IconServer,
   IconLayout,
@@ -91,6 +92,7 @@ interface ToggleProps {
   onCreateFreshProfile?: () => void;
   onDeleteCustomProfile?: (id: string) => void;
   onExportProfile?: (profileId: string) => void;
+  onImportProfile?: (file: File) => void;
 }
 
 export default function Toggle({
@@ -111,12 +113,25 @@ export default function Toggle({
   onCreateFreshProfile,
   onDeleteCustomProfile,
   onExportProfile,
+  onImportProfile,
 }: ToggleProps) {
   const router = useRouter();
+  const profileImportInputRef = useRef<HTMLInputElement>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [customInput, setCustomInput] = useState(activeColor);
   const [prevActiveColor, setPrevActiveColor] = useState(activeColor);
+
+  const handleProfileImportChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onImportProfile) {
+      setIsProfileOpen(false);
+      onImportProfile(file);
+    }
+    if (profileImportInputRef.current) {
+      profileImportInputRef.current.value = "";
+    }
+  };
 
   if (prevActiveColor !== activeColor) {
     setPrevActiveColor(activeColor);
@@ -321,9 +336,9 @@ export default function Toggle({
                   })}
                 </div>
 
-                {/* New Resume Button */}
-                {onResetEmpty && (
-                  <div className="mt-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                {/* Profile Actions: New Resume & Import Resume */}
+                <div className="mt-2 pt-2 border-t border-zinc-200 dark:border-zinc-800 flex items-center gap-2">
+                  {onResetEmpty && (
                     <button
                       onClick={() => {
                         setIsProfileOpen(false);
@@ -334,12 +349,36 @@ export default function Toggle({
                           if (onOpenWizard) onOpenWizard();
                         }
                       }}
-                      className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 text-xs font-bold shadow-xs transition-all cursor-pointer"
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-2 text-xs font-bold shadow-xs transition-all cursor-pointer"
                     >
-                      <IconPlus className="h-3.5 w-3.5" /> New Resume
+                      <IconPlus className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">New Resume</span>
                     </button>
-                  </div>
-                )}
+                  )}
+                  {onImportProfile && (
+                    <>
+                      <input
+                        ref={profileImportInputRef}
+                        type="file"
+                        accept=".json,application/json"
+                        onChange={handleProfileImportChange}
+                        className="hidden"
+                        id="profile-dropdown-import-json"
+                      />
+                      <button
+                        onClick={() => profileImportInputRef.current?.click()}
+                        className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-xs font-bold shadow-xs transition-all cursor-pointer border ${
+                          dm
+                            ? "bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border-zinc-700"
+                            : "bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border-zinc-200"
+                        }`}
+                      >
+                        <IconUpload className="h-3.5 w-3.5 shrink-0 text-zinc-500 dark:text-zinc-400" />
+                        <span className="truncate">Import Resume</span>
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -378,9 +417,10 @@ export default function Toggle({
             </div>
 
             {/* Pure View Button */}
-            <Link
+            <a
               href={`/view?view=${activeView}&theme=${activeTheme}&type=${activeType}&color=${encodedColor}&gradient=${useGradient}&mode=${themeMode}&card=${cardParam}`}
               target="_blank"
+              rel="noopener noreferrer"
               title="Open Pure Resume View in new tab"
               className={`flex h-8 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
                 dm
@@ -390,7 +430,7 @@ export default function Toggle({
             >
               <IconEye className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Pure View</span>
-            </Link>
+            </a>
 
             {/* Print Button */}
             <button

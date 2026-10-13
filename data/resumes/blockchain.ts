@@ -1,6 +1,7 @@
 import type { ResumeData } from "@/types";
 
 export const blockchainResume: ResumeData = {
+  label: "Sr. Blockchain Engineer",
   personalInfo: {
     name: "Aayush Thakur",
     role: "Sr. Blockchain Engineer",

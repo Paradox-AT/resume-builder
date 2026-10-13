@@ -2,6 +2,7 @@ import type { ResumeData } from "@/types/resume";
 import { createEmptyResumeData } from "@/lib/sanitize";
 import { blockchainResume } from "./blockchain";
 import { fullstackResume } from "./fullstack";
+import { backendResume } from "./backend";
 
 export interface ResumeProfile {
   id: string;
@@ -16,6 +17,9 @@ export interface ResumeProfile {
  */
 export function inferIconFromRole(role?: string): string {
   const r = (role || "").toLowerCase();
+  if (r.includes("golang") || r.includes("go engineer") || r.includes("go developer") || r.includes("go & distributed")) {
+    return "🐹";
+  }
   if (
     r.includes("blockchain") ||
     r.includes("crypto") ||
@@ -58,6 +62,7 @@ export function inferIconFromRole(role?: string): string {
 const RAW_PRESETS: Record<string, ResumeData> = {
   blockchain: blockchainResume,
   fullstack: fullstackResume,
+  backend: backendResume,
 };
 
 /**
@@ -67,7 +72,7 @@ const RAW_PRESETS: Record<string, ResumeData> = {
 export const RESUME_REGISTRY: ResumeProfile[] = Object.entries(RAW_PRESETS).map(
   ([id, data]) => ({
     id,
-    label: data.personalInfo.role,
+    label: data.label || data.personalInfo.role,
     icon: inferIconFromRole(data.personalInfo.role),
     data,
   })

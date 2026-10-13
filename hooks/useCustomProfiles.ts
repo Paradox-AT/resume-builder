@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import type { ResumeProfile } from "@/types";
+import type { ResumeData, ResumeProfile } from "@/types";
 import { createEmptyResumeData } from "@/lib/sanitize";
-import { RESUME_REGISTRY } from "@/data/resumes";
+import { RESUME_REGISTRY, inferIconFromRole } from "@/data/resumes";
 
 const CUSTOM_PROFILES_KEY = "resume-wizard:custom-profiles";
 
@@ -64,6 +64,34 @@ export function useCustomProfiles() {
     return id;
   }, [customProfiles, saveCustomProfiles]);
 
+  const createProfileWithData = useCallback(
+    (profileData: ResumeData, customName?: string) => {
+      const id = `custom-${Date.now()}`;
+      const label =
+        customName?.trim() ||
+        profileData.personalInfo.role?.trim() ||
+        profileData.personalInfo.name?.trim() ||
+        `Imported Resume ${customProfiles.length + 1}`;
+
+      const newProfile: ResumeProfile = {
+        id,
+        label,
+        icon: inferIconFromRole(profileData.personalInfo.role),
+        data: profileData,
+        isCustom: true,
+      };
+
+      try {
+        localStorage.setItem(`resume-wizard:${id}`, JSON.stringify(newProfile.data));
+      } catch {}
+
+      const updatedList = [...customProfiles, newProfile];
+      saveCustomProfiles(updatedList);
+      return id;
+    },
+    [customProfiles, saveCustomProfiles]
+  );
+
   const deleteCustomProfile = useCallback(
     (id: string) => {
       const updated = customProfiles.filter((p) => p.id !== id);
@@ -107,6 +135,7 @@ export function useCustomProfiles() {
     allProfiles,
     isMounted,
     createFreshProfile,
+    createProfileWithData,
     deleteCustomProfile,
     updateCustomProfileLabel,
   };

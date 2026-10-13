@@ -8,7 +8,7 @@ import { UxRichLayout, AtsLayout } from "@/components/layouts";
 import { useResumeStore } from "@/hooks/useResumeStore";
 import { useCustomProfiles } from "@/hooks/useCustomProfiles";
 import { getResumeData, RESUME_REGISTRY } from "@/data/resumes";
-import { getSidebarBg, getAccentGradientEnd, DEFAULT_ACCENT_COLOR } from "@/lib";
+import { getSidebarBg, getAccentGradientEnd, DEFAULT_ACCENT_COLOR, sanitizeResumeData } from "@/lib";
 import ResumeWizardDrawer from "@/components/wizard/ResumeWizardDrawer";
 
 interface ResumeViewWrapperProps {
@@ -168,6 +168,32 @@ export default function ResumeViewWrapper({
     URL.revokeObjectURL(url);
   };
 
+  const handleImportProfile = async (file: File) => {
+    try {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("File size exceeds 2MB limit.");
+        return;
+      }
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const sanitized = sanitizeResumeData(parsed);
+      const label =
+        sanitized.personalInfo.role?.trim() ||
+        sanitized.personalInfo.name?.trim() ||
+        file.name.replace(/\.json$/i, "");
+      const newId = customProfilesStore.createProfileWithData(sanitized, label);
+      setCurrentActiveType(newId);
+      const encodedColor = encodeURIComponent(activeColor);
+      const currentCardParam = isWhiteCard ? "white" : "dark";
+      router.replace(
+        `?view=${activeView}&type=${newId}&color=${encodedColor}&gradient=${isGradient}&mode=${themeMode}&card=${currentCardParam}`
+      );
+      setIsWizardOpen(true);
+    } catch (err) {
+      alert("Failed to import resume JSON: " + (err instanceof Error ? err.message : "Invalid JSON file structure."));
+    }
+  };
+
   return (
     <div
       className={`min-h-screen w-full flex flex-col items-center py-6 px-4 transition-colors duration-300 print:p-0 print:bg-white print:block ${modeClass} ${
@@ -200,6 +226,7 @@ export default function ResumeViewWrapper({
         onCreateFreshProfile={handleCreateFreshProfile}
         onDeleteCustomProfile={handleDeleteCustomProfile}
         onExportProfile={handleExportProfile}
+        onImportProfile={handleImportProfile}
       />
 
       <div className={`w-full flex-1 flex flex-col justify-start items-center print:block ${isWhiteCard ? "force-light" : "force-dark"}`}>

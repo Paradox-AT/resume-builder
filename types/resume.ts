@@ -40,6 +40,7 @@ export interface SectionTitles {
 }
 
 export interface ResumeData {
+  label?: string;
   personalInfo: {
     name: string;
     role: string;

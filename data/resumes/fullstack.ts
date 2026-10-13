@@ -1,6 +1,7 @@
 import type { ResumeData } from "@/types";
 
 export const fullstackResume: ResumeData = {
+  label: "Sr. Full-Stack Engineer",
   personalInfo: {
     name: "Aayush Thakur",
     role: "Sr. Full-Stack Engineer / Tech Lead",
@@ -17,40 +18,40 @@ export const fullstackResume: ResumeData = {
     {
       id: "livegage",
       date: { start: "2025-11", end: "Current" },
-      title: "Senior Full-Stack Engineer / Team Lead",
+      title: "Senior Blockchain Engineer / Team Lead",
       company: "Livegage, Remote",
       bullets: [
         "Architected and delivered an enterprise-grade mortgage management platform (POC to production), systematically migrating legacy complex core features into modern, event-driven microservices.",
         "Engineered a robust, highly branching Finite State Machine (FSM) engine to capture, model, and immutably validate multi-stakeholder mortgage workflows with audit-grade state reliability.",
-        "Orchestrated multi-environment container deployments across AWS (EKS, ECS, and Docker), establishing CI/CD pipelines, automated testing suites, and high-availability DevOps orchestration."
+        "Designed and implemented containerization setups using Docker for local and staging environments, while collaborating on AWS Kubernetes (EKS) multi-node deployment configurations and CI/CD pipelines.",
       ],
     },
     {
       id: "fujitsu",
       date: { start: "2024-03", end: "2024-12" },
-      title: "Full-Stack Application Developer",
+      title: "Application Developer",
       company: "Fujitsu, Pune",
       bullets: [
         "Directed zero-downtime database migrations and core Java/Spring Boot API lifecycle upgrades for enterprise client applications, ensuring continuous 99.99% service availability.",
-        "Delivered a 35% increase in backend API throughput by optimizing SQL/NoSQL database queries, fine-tuning caching strategies, and load balancing high-concurrency microservices.",
+        "Delivered a 35% increase in backend API throughput by optimizing SQL/NoSQL databases and blockchain ledger state queries (CouchDB), fine-tuning caching strategies, and load balancing microservices.",
         "Designed and executed rapid Proof of Concept (POC) full-stack frameworks to validate commercial viability, UI/UX responsiveness, and security architectures for emerging enterprise products."
       ],
     },
     {
       id: "protonshub",
       date: { start: "2023-02", end: "2024-02" },
-      title: "Full-Stack Consultant",
+      title: "Blockchain Consultant",
       company: "Protonshub, Indore",
       bullets: [
         "Engineered IoT and web-integrated telemetry dashboards, designing RESTful and MQTT API microservices in Node.js and Java for automated payment processing and real-time sensor data streaming.",
         "Developed robust API middleware and integration layers bridging legacy enterprise software with modern cloud-native web and mobile applications, ensuring zero operational downtime.",
-        "Conducted comprehensive code reviews, API security vulnerability assessments, and database query optimizations, significantly reducing response latency and infrastructure execution costs."
+        "Conducted comprehensive code reviews, API security vulnerability assessments, and query optimizations across SQL/NoSQL databases and blockchain ledger state queries, significantly reducing response latency and infrastructure execution costs.",
       ],
     },
     {
       id: "spydra",
       date: { start: "2022-04", end: "2023-01" },
-      title: "Staff Engineer (Full-Stack & Mobile)",
+      title: "Staff Engineer",
       company: "Spydra, Bengaluru, India",
       bullets: [
         "Headed the architecture and engineering of high-availability SaaS products, backend microservices, and React Native mobile applications, ensuring technical feasibility, scalability, and system performance.",
@@ -61,7 +62,7 @@ export const fullstackResume: ResumeData = {
     {
       id: "koinearth",
       date: { start: "2021-06", end: "2022-03" },
-      title: "Senior Full-Stack Engineer",
+      title: "Senior Blockchain Engineer",
       company: "KoineArth, Bengaluru, India",
       bullets: [
         "Developed core web and mobile application architectures for enterprise supply chain platforms, building reactive React / React Native frontends and high-throughput Node.js/Java backend services.",
@@ -72,7 +73,7 @@ export const fullstackResume: ResumeData = {
     {
       id: "antier",
       date: { start: "2020-10", end: "2021-05" },
-      title: "Senior Full-Stack Engineer",
+      title: "Senior Blockchain Engineer",
       company: "Antier Solutions, Chandigarh, India",
       bullets: [
         "Architected full-stack web and Android mobile applications for enterprise digital banking applications (Sara Banking), meeting strict financial regulatory standards and data privacy requirements.",
@@ -83,7 +84,7 @@ export const fullstackResume: ResumeData = {
     {
       id: "acs",
       date: { start: "2017-07", end: "2020-09" },
-      title: "Full-Stack Engineer",
+      title: "Blockchain Engineer",
       company: "ACS Solutions, Hyderabad, India",
       bullets: [
         "Served as end-to-end owner for enterprise transport management systems (TMS), architecting responsive React web interfaces and Java / Spring Boot microservice backends.",

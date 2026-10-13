@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ResumeData, StepId, WizardStep, WorkExperience, Education, Skill } from "@/types";
 import StepPersonalInfo from "./steps/StepPersonalInfo";
 import StepSummary from "./steps/StepSummary";
@@ -16,6 +16,7 @@ import {
   IconGraduation,
   IconZap,
   IconTag,
+  IconUpload,
 } from "@/components/ui/icons";
 
 interface StepIconProps {
@@ -78,7 +79,7 @@ interface ResumeWizardDrawerProps {
   onUpdateSkill: (category: "skills" | "languages", idx: number, updated: Partial<Skill>) => void;
   onUpdateSectionTitle?: (field: keyof SectionTitles, value: string) => void;
   onExportDownload?: () => void;
-  onImportFile?: (file: File) => void;
+  onImportFile?: (file: File) => Promise<{ success: boolean; error?: string }> | void;
   onResetToPreset?: () => void;
   onResetToEmpty?: () => void;
 }
@@ -111,8 +112,46 @@ export default function ResumeWizardDrawer({
   onRemoveSkill,
   onUpdateSkill,
   onUpdateSectionTitle,
+  onImportFile,
 }: ResumeWizardDrawerProps) {
   const [activeStep, setActiveStep] = useState<StepId>("personal");
+  const drawerImportInputRef = useRef<HTMLInputElement>(null);
+  const [importNotice, setImportNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  useEffect(() => {
+    if (importNotice) {
+      const timer = setTimeout(() => setImportNotice(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [importNotice]);
+
+  const handleHeaderFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setImportNotice({ type: "error", text: "File is too large (max 2MB limit)." });
+      if (drawerImportInputRef.current) drawerImportInputRef.current.value = "";
+      return;
+    }
+
+    if (onImportFile) {
+      try {
+        const result = await onImportFile(file);
+        if (result && !result.success) {
+          setImportNotice({ type: "error", text: result.error || "Failed to parse JSON file." });
+        } else {
+          setImportNotice({ type: "success", text: "Resume data imported successfully!" });
+        }
+      } catch (err) {
+        setImportNotice({ type: "error", text: err instanceof Error ? err.message : "Error importing file." });
+      }
+    }
+
+    if (drawerImportInputRef.current) {
+      drawerImportInputRef.current.value = "";
+    }
+  };
 
   // Reset to 1st step ("personal") whenever drawer opens
   useEffect(() => {
@@ -202,6 +241,28 @@ export default function ResumeWizardDrawer({
             </div>
 
             <div className="flex items-center gap-1.5">
+              {/* Upload JSON Button */}
+              {onImportFile && (
+                <>
+                  <input
+                    ref={drawerImportInputRef}
+                    type="file"
+                    accept=".json,application/json"
+                    onChange={handleHeaderFileImport}
+                    className="hidden"
+                    id="wizard-header-import-json"
+                  />
+                  <button
+                    onClick={() => drawerImportInputRef.current?.click()}
+                    title="Upload and import resume JSON"
+                    className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 cursor-pointer shadow-2xs transition-colors mr-0.5"
+                  >
+                    <IconUpload className="h-3.5 w-3.5 text-zinc-500 dark:text-zinc-400" />
+                    <span>Upload JSON</span>
+                  </button>
+                </>
+              )}
+
               {/* Undo / Redo controls */}
               <button
                 onClick={onUndo}
@@ -230,6 +291,25 @@ export default function ResumeWizardDrawer({
               </button>
             </div>
           </div>
+
+          {/* Import Status Feedback Banner */}
+          {importNotice && (
+            <div
+              className={`px-4 py-2 text-xs font-semibold flex items-center justify-between border-b transition-all ${
+                importNotice.type === "success"
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                  : "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
+              }`}
+            >
+              <span>{importNotice.type === "success" ? "✓" : "⚠"} {importNotice.text}</span>
+              <button
+                onClick={() => setImportNotice(null)}
+                className="ml-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+          )}
 
           {/* STEP PILLS NAVIGATION */}
           <div className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 overflow-x-auto scrollbar-none">
